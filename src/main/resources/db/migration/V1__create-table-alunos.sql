@@ -1,4 +1,4 @@
-create table aluno(
+create table alunos(
 
     id bigint not null auto_increment,
     nome varchar(100) not null,
@@ -9,6 +9,7 @@ create table aluno(
     orientacao_sexual varchar(100) not null,
     cor_raca varchar(20) not null,
     data_nascimento date not null,
+    ativo tinyint not null,
 
     primary key(id)
 
