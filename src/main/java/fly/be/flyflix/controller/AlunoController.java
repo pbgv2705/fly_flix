@@ -1,17 +1,11 @@
 package fly.be.flyflix.controller;
 
-import fly.be.flyflix.domain.aluno.Aluno;
-import fly.be.flyflix.domain.aluno.AlunoRepository;
-import fly.be.flyflix.domain.aluno.DadosCadastroAluno;
-import fly.be.flyflix.domain.aluno.DadosDetalhamentoAluno;
+import fly.be.flyflix.domain.aluno.*;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @RestController
@@ -29,5 +23,27 @@ public class AlunoController {
         var uri = uriBuilder.path("/aluno/{id}").buildAndExpand(aluno.getId()).toUri();
 
         return ResponseEntity.created(uri).body(new DadosDetalhamentoAluno(aluno));
+    }
+
+    @PutMapping
+    @Transactional
+    public ResponseEntity atualizar(@RequestBody @Valid DadosAtualizacaoAluno dados) {
+        var aluno = repository.getReferenceById(dados.id());
+        aluno.atualizarInformacoes(dados);
+
+        return ResponseEntity.ok(new DadosDetalhamentoAluno(aluno));
+    }
+
+    @DeleteMapping("/{id}")
+    @Transactional
+    public ResponseEntity remover(@PathVariable Long id) {
+        var aluno = repository.getReferenceById(id);
+        aluno.inativar();
+        return ResponseEntity.noContent().build();
+    }
+    @GetMapping("/{id}")
+    public ResponseEntity detalhar(@PathVariable Long id) {
+        var aluno = repository.getReferenceById(id);
+        return ResponseEntity.ok(new DadosDetalhamentoAluno(aluno));
     }
 }

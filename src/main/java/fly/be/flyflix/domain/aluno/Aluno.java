@@ -14,7 +14,7 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity(name = "Aluno")
-@Table(name = "aluno")
+@Table(name = "alunos")
 public class Aluno {
 
     @Id
@@ -28,6 +28,7 @@ public class Aluno {
     private String orientacaoSexual;
     private String corRaca;
     private Date dataNascimento;
+    private boolean ativo;
 
     public Aluno(DadosCadastroAluno dados) {
         this.nome = dados.nome();
@@ -38,5 +39,30 @@ public class Aluno {
         this.orientacaoSexual = dados.orientacaoSexual();
         this.corRaca = dados.corRaca();
         this.dataNascimento = dados.dataNascimento();
+    }
+
+    public void atualizarInformacoes(DadosAtualizacaoAluno dados){
+        if (dados.nome()!=null) {
+            this.nome = dados.nome();
+        }
+        if (dados.email()!=null) {
+            this.email = dados.email();
+        }
+        if (dados.cep()!=null) {
+            this.cep = dados.cep();
+        }
+        if (dados.identidadeGenero()!=null) {
+            this.identidadeGenero = dados.identidadeGenero();
+        }
+        if (dados.orientacaoSexual()!=null) {
+            this.orientacaoSexual = dados.orientacaoSexual();
+        }
+        if (dados.endereco()!=null) {
+            this.endereco = dados.endereco();
+        }
+    }
+
+    public void inativar() {
+        this.ativo = false;
     }
 }
