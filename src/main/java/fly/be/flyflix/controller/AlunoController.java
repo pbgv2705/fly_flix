@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @RestController
-@RequestMapping("aluno")
+@RequestMapping("alunos")
 public class AlunoController {
 
     @Autowired
@@ -20,7 +20,7 @@ public class AlunoController {
         var aluno = new Aluno(dados);
         repository.save(aluno);
 
-        var uri = uriBuilder.path("/aluno/{id}").buildAndExpand(aluno.getId()).toUri();
+        var uri = uriBuilder.path("/alunos/{id}").buildAndExpand(aluno.getId()).toUri();
 
         return ResponseEntity.created(uri).body(new DadosDetalhamentoAluno(aluno));
     }

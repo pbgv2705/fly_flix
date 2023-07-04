@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @RestController
-@RequestMapping("conteudo")
+@RequestMapping("conteudos")
 public class ConteudoController {
     @Autowired
     private ConteudoRepository repository;
@@ -22,7 +22,7 @@ public class ConteudoController {
         var conteudo = new Conteudo(dados);
         repository.save(conteudo);
 
-        var uri = uriBuilder.path("/conteudo/{id}").buildAndExpand(conteudo.getId()).toUri();
+        var uri = uriBuilder.path("/conteudos/{id}").buildAndExpand(conteudo.getId()).toUri();
 
         return ResponseEntity.created(uri).body(new DadosConteudo(conteudo));
     }
