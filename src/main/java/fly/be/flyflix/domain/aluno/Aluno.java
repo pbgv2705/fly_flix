@@ -39,6 +39,7 @@ public class Aluno {
         this.orientacaoSexual = dados.orientacaoSexual();
         this.corRaca = dados.corRaca();
         this.dataNascimento = dados.dataNascimento();
+        this.ativo = true;
     }
 
     public void atualizarInformacoes(DadosAtualizacaoAluno dados){

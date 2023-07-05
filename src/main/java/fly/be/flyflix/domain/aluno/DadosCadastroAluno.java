@@ -14,7 +14,7 @@ public record DadosCadastroAluno(
     String email,
     @NotBlank
     String endereco,
-    @NotBlank @Pattern(regexp = "\\d{5}\\-?\\d{2}")
+    @NotBlank
     String cep,
     @NotBlank
     String identidadeGenero,
