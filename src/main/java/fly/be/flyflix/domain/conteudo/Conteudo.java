@@ -27,13 +27,13 @@ public class Conteudo {
 
     private boolean ativo;
 
-    public Conteudo(DadosConteudo dados) {
-        this.id = dados.id();
+    public Conteudo(DadosCadastroConteudo dados) {
         this.nome = dados.nome();
         this.descricao = dados.descricao();
         this.duracao = dados.duracao();
         this.link = dados.link();
         this.categoria = dados.categoria();
+        this.ativo = true;
     }
 
     public void atualizarInformacoes(DadosConteudo dados){

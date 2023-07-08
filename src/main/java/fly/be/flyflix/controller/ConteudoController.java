@@ -1,10 +1,16 @@
 package fly.be.flyflix.controller;
 
+import fly.be.flyflix.domain.aluno.DadosCadastroAluno;
+import fly.be.flyflix.domain.aluno.DadosDetalhamentoAluno;
 import fly.be.flyflix.domain.conteudo.Conteudo;
 import fly.be.flyflix.domain.conteudo.ConteudoRepository;
+import fly.be.flyflix.domain.conteudo.DadosCadastroConteudo;
 import fly.be.flyflix.domain.conteudo.DadosConteudo;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +24,7 @@ public class ConteudoController {
 
     @PostMapping
     @Transactional
-    public ResponseEntity cadastrar(@RequestBody @Valid DadosConteudo dados, UriComponentsBuilder uriBuilder) {
+    public ResponseEntity cadastrar(@RequestBody @Valid DadosCadastroConteudo dados, UriComponentsBuilder uriBuilder) {
         var conteudo = new Conteudo(dados);
         repository.save(conteudo);
 
@@ -34,6 +40,11 @@ public class ConteudoController {
         conteudo.atualizarInformacoes(dados);
 
         return ResponseEntity.ok(new DadosConteudo(conteudo));
+    }
+
+    @GetMapping
+    public Page<DadosConteudo> listar(@PageableDefault(size=10, sort = {"nome"}) Pageable paginacao) {
+        return repository.findAllByAtivoTrue(paginacao).map(DadosConteudo::new);
     }
 
     @DeleteMapping("/{id}")

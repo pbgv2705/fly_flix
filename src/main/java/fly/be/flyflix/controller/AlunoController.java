@@ -31,13 +31,8 @@ public class AlunoController {
     }
 
     @GetMapping
-//    public ResponseEntity<Page<DadosDetalhamentoAluno>> listar(@PageableDefault(size = 10, sort = {"nome"}) Pageable paginacao) {
-//        var page = repository.findAllByAtivoTrue(paginacao).map(DadosDetalhamentoAluno::new);
-//        return ResponseEntity.ok(page);
-//
-//    }
-        public Page<DadosDetalhamentoAluno> listar(@PageableDefault(size=10, sort = {"nome"}) Pageable paginacao) {
-            return repository.findAllByAtivoTrue(paginacao).map(DadosDetalhamentoAluno::new);
+    public Page<DadosDetalhamentoAluno> listar(@PageableDefault(size=10, sort = {"nome"}) Pageable paginacao) {
+        return repository.findAllByAtivoTrue(paginacao).map(DadosDetalhamentoAluno::new);
     }
 
     @PutMapping
