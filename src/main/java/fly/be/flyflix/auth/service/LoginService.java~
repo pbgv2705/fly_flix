@@ -1,0 +1,4 @@
+package fly.be.flyflix.auth.service;
+
+public interface LoginService {
+}

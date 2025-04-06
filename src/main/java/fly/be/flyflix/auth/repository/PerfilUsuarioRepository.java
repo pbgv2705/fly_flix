@@ -1,0 +1,10 @@
+package fly.be.flyflix.auth.repository;
+
+import fly.be.flyflix.auth.entity.PerfilUsuario;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface PerfilUsuarioRepository extends JpaRepository<PerfilUsuario, Long> {
+    PerfilUsuario findByName(String name);
+}

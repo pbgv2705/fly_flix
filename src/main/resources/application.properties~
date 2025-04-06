@@ -25,8 +25,8 @@ spring.data.web.sort.sort-parameter=ordem
 #spring boot email
 spring.mail.host=smtp.gmail.com
 spring.mail.port=587
-spring.mail.username=email@gmail.com
-spring.mail.password= access password gmail
+spring.mail.username=letzalet@gmail.com
+spring.mail.password=gvwh lriz vjqm dkml
 spring.mail.properties.mail.smtp.auth=true
 spring.mail.properties.mail.smtp.starttls.enable=true
 

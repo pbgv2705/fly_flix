@@ -1,0 +1,4 @@
+package fly.be.flyflix.conteudo;
+
+public class ConteudoController {
+}
