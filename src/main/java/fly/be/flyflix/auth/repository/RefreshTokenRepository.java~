@@ -1,0 +1,20 @@
+package fly.be.flyflix.auth.repository;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+
+public class RefreshTokenRepository {
+
+    private Map<String, String> refreshTokens = new HashMap<>(); // Map para armazenar os refrehs tokens
+
+    // Salva um refresh token
+    public void save (String refreshToken, String usuarioId) {
+        refreshTokens.put(refreshToken, usuarioId);
+    }
+
+    // Busca um refresh token pelo seu valor
+    Optional<String> findByRefreshToken(String refreshToken){
+        return Optional.ofNullable(refreshTokens.get(refreshToken));
+    }
+}

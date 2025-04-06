@@ -5,6 +5,7 @@ import fly.be.flyflix.auth.controller.dto.LoginResponse;
 import fly.be.flyflix.auth.repository.UsuarioRepository;
 import fly.be.flyflix.auth.service.LoginService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
@@ -13,6 +14,7 @@ import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,12 +30,10 @@ public class LoginServiceImpl implements LoginService {
         this.jwtEncoder = jwtEncoder;
     }
 
+
+    //Login
     @Override
     public ResponseEntity<LoginResponse> login(LoginRequest loginRequest) {
-
-        System.out.println("Login Request: ");
-
-        System.out.println("Login Request: " + loginRequest.login());
 
         var usuario = usuarioRepository.findByLogin(loginRequest.login());
 
@@ -44,7 +44,7 @@ public class LoginServiceImpl implements LoginService {
 
         //Gerar e retornar token jwt com as permissoes
         var now = Instant.now();
-        var expiresIn = 300L; // expira em 5 minutos
+        var expiresIn = 604800L; // expira em 1 semana
         var scopes = usuario.get().getPerfiles()
                 .stream()
                 .map(role -> role.getName().toUpperCase())
@@ -53,7 +53,7 @@ public class LoginServiceImpl implements LoginService {
 
         // dados do token jwt com as permissoes do usuario logado
         var claims = JwtClaimsSet.builder()
-                .issuer("myBackend")
+                .issuer("flyflix-backend")
                 .subject(usuario.get().getId().toString())
                 .issuedAt(now)
                 .expiresAt(now.plusSeconds(expiresIn))
@@ -62,6 +62,9 @@ public class LoginServiceImpl implements LoginService {
 
         var jwtValue = jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
 
+
         return ResponseEntity.ok(new LoginResponse(jwtValue, expiresIn));
     }
+
+
 }

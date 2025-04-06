@@ -1,34 +1,24 @@
 package fly.be.flyflix.auth.controller;
 
-import fly.be.flyflix.domain.usuario.DadosAutenticacao;
-import fly.be.flyflix.domain.usuario.Usuario;
-import fly.be.flyflix.infra.security.DadosTokenJWT;
-import fly.be.flyflix.infra.security.TokenService;
-import jakarta.validation.Valid;
+import fly.be.flyflix.auth.controller.dto.LoginRequest;
+import fly.be.flyflix.auth.controller.dto.LoginResponse;
+import fly.be.flyflix.auth.service.LoginService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/login")
-public class AutenticacaoController {
+public class TokenController {
 
     @Autowired
-    private AuthenticationManager manager;
-    @Autowired
-    private TokenService tokenService;
+    private LoginService loginService;
 
-    @PostMapping
-    public ResponseEntity efetuarLogin(@RequestBody @Valid DadosAutenticacao dados) {
-        var authenticationToken = new UsernamePasswordAuthenticationToken(dados.login(), dados.senha());
-        var authentication = manager.authenticate(authenticationToken);
-        var tokenJWT = tokenService.gerarToken((Usuario) authentication.getPrincipal());
 
-        return ResponseEntity.ok(new DadosTokenJWT(tokenJWT));
+    @PostMapping("/login")
+    public ResponseEntity <LoginResponse> login(@RequestBody LoginRequest loginRequest) {
+        return loginService.login(loginRequest);
     }
+
 }
