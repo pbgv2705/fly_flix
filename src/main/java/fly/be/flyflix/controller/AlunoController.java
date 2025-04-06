@@ -1,6 +1,7 @@
 package fly.be.flyflix.controller;
 
 import fly.be.flyflix.domain.aluno.*;
+import fly.be.flyflix.infra.exception.RecursoNaoEncontradoException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -25,7 +26,7 @@ public class AlunoController {
         var aluno = new Aluno(dados);
         repository.save(aluno);
 
-        var uri = uriBuilder.path("/alunos/{id}").buildAndExpand(aluno.getId()).toUri();
+        var uri = uriBuilder.path("/alunos/{cpf}").buildAndExpand(aluno.getCpf()).toUri();
 
         return ResponseEntity.created(uri).body(new DadosDetalhamentoAluno(aluno));
     }
@@ -44,16 +45,20 @@ public class AlunoController {
         return ResponseEntity.ok(new DadosDetalhamentoAluno(aluno));
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{cpf}")
     @Transactional
-    public ResponseEntity remover(@PathVariable Long id) {
-        var aluno = repository.getReferenceById(id);
+    public ResponseEntity remover(@PathVariable String cpf) {
+        var aluno = repository.findByCpf(cpf)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Aluno com CPF " + cpf + " não encontrado"));
+
         aluno.inativar();
         return ResponseEntity.noContent().build();
     }
-    @GetMapping("/{id}")
-    public ResponseEntity detalhar(@PathVariable Long id) {
-        var aluno = repository.getReferenceById(id);
-        return ResponseEntity.ok(new DadosDetalhamentoAluno(aluno));
+    @GetMapping("/{cpf}")
+    public ResponseEntity detalhar(@PathVariable String cpf) {
+        return repository.findByCpf(cpf)
+                .map(aluno -> ResponseEntity.ok(new DadosDetalhamentoAluno(aluno)))
+                .orElse(ResponseEntity.notFound().build());
     }
+
 }

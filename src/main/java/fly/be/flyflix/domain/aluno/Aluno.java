@@ -1,65 +1,62 @@
 package fly.be.flyflix.domain.aluno;
 
+import fly.be.flyflix.validation.CPF;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import lombok.*;
 
 import java.util.Date;
 
-
 @Getter
+@Setter
 @EqualsAndHashCode(of = "id")
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity(name = "Aluno")
-@Table(name = "alunos")
+@Table(name = "alunos", uniqueConstraints = {
+        @UniqueConstraint(columnNames = "cpf")
+})
 public class Aluno {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @CPF
+    @NotBlank
+    @Column(nullable = false, unique = true)
+    private String cpf;
+
+    @NotBlank
+    @Column(nullable = false)
     private String nome;
+
+    @NotBlank
+    @Email
+    @Column(nullable = false)
     private String email;
-    private String endereco;
-    private String cep;
-    private String identidadeGenero;
-    private String orientacaoSexual;
-    private String corRaca;
+
+    @Temporal(TemporalType.DATE)
     private Date dataNascimento;
+
+    @Column(nullable = false)
     private boolean ativo;
 
     public Aluno(DadosCadastroAluno dados) {
+        this.cpf = dados.cpf();
         this.nome = dados.nome();
         this.email = dados.email();
-        this.endereco = dados.endereco();
-        this.cep = dados.cep();
-        this.identidadeGenero = dados.identidadeGenero();
-        this.orientacaoSexual = dados.orientacaoSexual();
-        this.corRaca = dados.corRaca();
         this.dataNascimento = dados.dataNascimento();
         this.ativo = true;
     }
 
-    public void atualizarInformacoes(DadosAtualizacaoAluno dados){
-        if (dados.nome()!=null) {
+    public void atualizarInformacoes(DadosAtualizacaoAluno dados) {
+        if (dados.nome() != null) {
             this.nome = dados.nome();
         }
-        if (dados.email()!=null) {
+        if (dados.email() != null) {
             this.email = dados.email();
-        }
-        if (dados.cep()!=null) {
-            this.cep = dados.cep();
-        }
-        if (dados.identidadeGenero()!=null) {
-            this.identidadeGenero = dados.identidadeGenero();
-        }
-        if (dados.orientacaoSexual()!=null) {
-            this.orientacaoSexual = dados.orientacaoSexual();
-        }
-        if (dados.endereco()!=null) {
-            this.endereco = dados.endereco();
         }
     }
 
