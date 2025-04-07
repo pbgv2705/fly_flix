@@ -1,14 +1,17 @@
 package fly.be.flyflix.auth.service.Impl;
 
+import fly.be.flyflix.auth.controller.dto.DadosAtualizacaoAluno;
+import fly.be.flyflix.auth.controller.dto.DadosDetalhamentoAluno;
 import fly.be.flyflix.auth.entity.Aluno;
-import fly.be.flyflix.auth.controller.dto.CadastroAlunoDTO;
+import fly.be.flyflix.auth.controller.dto.CadastroAluno;
 import fly.be.flyflix.auth.entity.PerfilUsuario;
 import fly.be.flyflix.auth.entity.Usuario;
 import fly.be.flyflix.auth.repository.AlunoRepository;
 import fly.be.flyflix.auth.repository.PerfilUsuarioRepository;
 import fly.be.flyflix.auth.repository.UsuarioRepository;
 import fly.be.flyflix.auth.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -35,12 +38,10 @@ public class UserServiceImpl implements UserService {
         this.perfilUsuarioRepository = perfilUsuarioRepository;
     }
 
-
-
     //CadastrarUsuario
     @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     @Override
-    public ResponseEntity<Map<String, Object>> cadastrarUsuario(CadastroAlunoDTO dados) {
+    public ResponseEntity<Map<String, Object>> cadastrarAluno(CadastroAluno dados) {
 
         //validar se o email ja esta cadastrado no banco
         var usuarioEmailDB = usuarioRepository.findByLogin(dados.email());
@@ -66,10 +67,11 @@ public class UserServiceImpl implements UserService {
 
         // Verificar se o perfil foi encontrado
         if (usuarioPerfil == null) {
-            // Lançar uma exceção ou retornar uma resposta de erro, dependendo da sua lógica
+            // Lançar uma exceção ou retornar uma resposta de erro
             throw new IllegalStateException("Perfil 'ALUNO' não encontrado.");
         }
 
+        //Criando objeto com os dados do usuario
         Usuario usuario = Usuario.builder()
                 .cpf(dados.cpf())
                 .login(dados.email())
@@ -94,4 +96,78 @@ public class UserServiceImpl implements UserService {
 
         return ResponseEntity.ok().build();
     }
+
+    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+    @Override
+    public ResponseEntity<Map<String, Object>> atualizarAluno(DadosAtualizacaoAluno dados) {
+        var alunoDB = alunoRepository.getReferenceById(dados.id());
+
+        //validar que tudos os dados estao preenchidos
+         if( dados.nome() != null && dados.email() != null && dados.cpf() != null && dados.dataNascimento() != null && dados.ativo() != null){
+            alunoDB.setNome(dados.nome());
+            alunoDB.setEmail(dados.email());
+            alunoDB.setCpf(dados.cpf());
+            alunoDB.setDataNascimento(dados.dataNascimento());
+            alunoDB.setAtivo(dados.ativo());
+            //atualizar o aluno
+            alunoRepository.save(alunoDB);
+
+             Map<String, Object> response = new HashMap<>();
+             response.put("message", "Dados de Aluno atualizados com sucesso");
+
+             return ResponseEntity.status(HttpStatus.ACCEPTED).body(response);
+         }
+
+         //caso algum dado esteja vazio
+         Map<String, Object> response = new HashMap<>();
+         response.put("message", "Todos os dados devem ser preenchidos");
+
+         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+
+    }
+
+    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+    @Override
+    public ResponseEntity<Map<String, Object>> removerAluno(long id) {
+        Aluno aluno = alunoRepository.getReferenceById(id);
+        if (aluno != null) {
+            aluno.inativar();
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Usuario removido com sucesso");
+
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        }
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "Usuario não existe");
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+    @Override
+    public ResponseEntity<Map<String, Object>> obterAluno(long id) {
+        var alunoDB= alunoRepository.findById(id);
+
+        if (alunoDB.isEmpty()) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Aluno não encontrado");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+
+        }
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "Aluno encontrado");
+        response.put("data", alunoDB);
+
+        return ResponseEntity.status(HttpStatus.FOUND).body(response);
+    }
+
+    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+    @Override
+    public Page<DadosDetalhamentoAluno> listar(Pageable paginacao) {
+        return alunoRepository.findAllByAtivoTrue(paginacao)
+                .map(DadosDetalhamentoAluno::new);
+    }
+
+
 }

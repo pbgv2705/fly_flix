@@ -16,6 +16,6 @@ public interface UserService {
     public ResponseEntity<Map<String, Object>> atualizarAluno(DadosAtualizacaoAluno dados);
     public ResponseEntity<Map<String, Object>> removerAluno(long id);
     public ResponseEntity<Map<String, Object>> obterAluno(long id);
-    public Page<DadosDetalhamentoAluno> listar(Pageable paginacao);
+    public Page<DadosDetalhamentoAluno> listar(Pageable paginacao)
 
 }

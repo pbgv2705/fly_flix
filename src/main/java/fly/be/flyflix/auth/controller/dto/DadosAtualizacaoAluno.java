@@ -8,8 +8,11 @@ import org.hibernate.validator.constraints.br.CPF;
 
 import java.time.LocalDate;
 
+public record DadosAtualizacaoAluno(
 
-public record CadastroAlunoDTO(
+        @NotNull
+        Long id,
+
         @NotBlank
         String nome,
 
@@ -25,10 +28,10 @@ public record CadastroAlunoDTO(
         String cpf,
 
         @NotNull
-        @Past (message = "Data de nascimento inválida")
-        LocalDate dataNascimento
+        @Past(message = "Data de nascimento inválida")
+        LocalDate dataNascimento,
 
-
-
+        @NotNull
+        Boolean ativo
 ) {
 }

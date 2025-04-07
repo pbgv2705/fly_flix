@@ -38,7 +38,7 @@ public class Aluno {
     private LocalDate dataNascimento;
 
     // Quando o aluno é criado ele é ativado
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "BOOLEAN")
     private Boolean ativo = true;
 
     //desativar aluno
