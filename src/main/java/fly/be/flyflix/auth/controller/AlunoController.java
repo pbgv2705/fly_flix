@@ -5,6 +5,7 @@ import fly.be.flyflix.auth.controller.dto.DadosAtualizacaoAluno;
 import fly.be.flyflix.auth.controller.dto.DadosDetalhamentoAluno;
 import fly.be.flyflix.auth.repository.AlunoRepository;
 import fly.be.flyflix.auth.service.EmailService;
+
 import fly.be.flyflix.auth.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,9 @@ public class AlunoController {
     @Autowired
     private UserService userService;
 
+
+
+    //Cadastrar usuarios
     @PostMapping
     @Transactional
     public ResponseEntity cadastrar(@RequestBody @Valid CadastroAluno dados) {
@@ -35,11 +39,13 @@ public class AlunoController {
         return userService.cadastrarAluno(dados);
     }
 
+    //Cadastrar lista de alunos
     @GetMapping
     public Page<DadosDetalhamentoAluno> listar(@PageableDefault(size=10, sort = {"nome"}) Pageable paginacao) {
         return userService.listar(paginacao);
     }
 
+    //Atualizar aluno
     @PutMapping
     @Transactional
     public ResponseEntity atualizar(@RequestBody @Valid DadosAtualizacaoAluno dados) {
@@ -47,15 +53,18 @@ public class AlunoController {
         return userService.atualizarAluno(dados);
     }
 
+    //Desativar usuario
     @DeleteMapping("/{id}")
     @Transactional
     public ResponseEntity remover(@PathVariable Long id) {
         return userService.removerAluno(id);
     }
 
+    //Obter dados de aluno
     @GetMapping("/{id}")
     public ResponseEntity detalhar(@PathVariable Long id) {
 
         return  userService.obterAluno(id);
     }
+
 }

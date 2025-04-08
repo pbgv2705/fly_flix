@@ -40,6 +40,8 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(HttpMethod.POST, "/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/esqueci-senha").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/resetar-senha").permitAll()
                         .requestMatchers(HttpMethod.POST, "/alunos").hasAuthority("SCOPE_ADMIN")
                         .anyRequest().authenticated()
                 )

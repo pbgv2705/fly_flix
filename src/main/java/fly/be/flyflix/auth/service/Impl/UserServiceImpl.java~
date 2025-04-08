@@ -101,14 +101,20 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResponseEntity<Map<String, Object>> atualizarAluno(DadosAtualizacaoAluno dados) {
         var alunoDB = alunoRepository.getReferenceById(dados.id());
+        var usuarioDB = alunoDB.getUsuario();
 
         //validar que tudos os dados estao preenchidos
          if( dados.nome() != null && dados.email() != null && dados.cpf() != null && dados.dataNascimento() != null && dados.ativo() != null){
+             //setar dados do aluno
             alunoDB.setNome(dados.nome());
             alunoDB.setEmail(dados.email());
             alunoDB.setCpf(dados.cpf());
             alunoDB.setDataNascimento(dados.dataNascimento());
             alunoDB.setAtivo(dados.ativo());
+
+            //setar os dados do usuario do aluno
+            usuarioDB.setLogin(dados.email());
+            usuarioDB.setCpf(dados.cpf());
             //atualizar o aluno
             alunoRepository.save(alunoDB);
 
@@ -163,7 +169,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
-    //@Override
+    @Override
     public Page<DadosDetalhamentoAluno> listar(Pageable paginacao) {
         return alunoRepository.findAllByAtivoTrue(paginacao)
                 .map(DadosDetalhamentoAluno::new);
