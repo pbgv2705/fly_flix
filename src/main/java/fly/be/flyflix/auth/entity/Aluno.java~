@@ -31,12 +31,18 @@ public class Aluno {
     @Column(nullable = false)
     private String nome;
 
+    @Column(nullable = false)
+    private String email;
+
     @Past(message = "Data de nascimento inválida")
     private LocalDate dataNascimento;
 
     // Quando o aluno é criado ele é ativado
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "BOOLEAN")
     private Boolean ativo = true;
+
+    public Aluno(Aluno aluno) {
+    }
 
     //desativar aluno
     public boolean inativar() {
