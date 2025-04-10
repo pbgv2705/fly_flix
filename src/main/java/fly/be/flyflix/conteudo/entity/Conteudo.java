@@ -1,59 +1,56 @@
 package fly.be.flyflix.conteudo.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 
+@Entity
 @Table(name = "conteudos")
-@Entity(name = "Conteudo")
-@Getter
-@NoArgsConstructor
-@AllArgsConstructor
-@EqualsAndHashCode(of = "id")
 public class Conteudo {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String nome;
-    private String descricao;
-    private String duracao;
-    private String link;
-    @Enumerated(EnumType.STRING)
-    private Categoria categoria;
 
-    private boolean ativo;
+    private String tipo; // vídeo, texto, artigo, pdf
 
-//    public Conteudo(DadosCadastroConteudo dados) {
-//        this.nome = dados.nome();
-//        this.descricao = dados.descricao();
-//        this.duracao = dados.duracao();
-//        this.link = dados.link();
-//        this.categoria = dados.categoria();
-//        this.ativo = true;
-//    }
+    private String url; // link do conteúdo (ex: S3, local ou CDN)
 
-//    public void atualizarInformacoes(DadosConteudo dados){
-//        if (dados.nome()!=null) {
-//            this.nome = dados.nome();
-//        }
-//        if (dados.descricao()!=null) {
-//            this.descricao = dados.descricao();
-//        }
-//        if (dados.duracao()!=null) {
-//            this.duracao = dados.duracao();
-//        }
-//        if (dados.link()!=null) {
-//            this.link = dados.link();
-//        }
-//        if (dados.categoria()!=null) {
-//            this.categoria = dados.categoria();
-//        }
-//    }
-//
-//    public void arquivar() {
-//        this.ativo = false;
-//    }
+    private Integer tempoEstimadoLeitura; // em minutos
+
+    @Lob
+    private String texto; // conteúdo em Markdown ou HTML
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "aula_id")
+    private Aula aula;
+
+    @Column(nullable = false)
+    private boolean ativo = true;
+
+    public boolean isAtivo() { return ativo; }
+    public void setAtivo(boolean ativo) { this.ativo = ativo; }
+
+    // Getters e Setters
+    public Long getId() { return id; }
+
+    public void setId(Long id) { this.id = id; }
+
+    public String getTipo() { return tipo; }
+
+    public void setTipo(String tipo) { this.tipo = tipo; }
+
+    public String getUrl() { return url; }
+
+    public void setUrl(String url) { this.url = url; }
+
+    public Integer getTempoEstimadoLeitura() { return tempoEstimadoLeitura; }
+
+    public void setTempoEstimadoLeitura(Integer tempoEstimadoLeitura) { this.tempoEstimadoLeitura = tempoEstimadoLeitura; }
+
+    public String getTexto() { return texto; }
+
+    public void setTexto(String texto) { this.texto = texto; }
+
+    public Aula getAula() { return aula; }
+
+    public void setAula(Aula aula) { this.aula = aula; }
 }
