@@ -5,6 +5,8 @@ import jakarta.validation.constraints.Past;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Table(name = "alunos")
 @Entity(name = "Aluno")
@@ -36,6 +38,11 @@ public class Aluno {
 
     @Past(message = "Data de nascimento inválida")
     private LocalDate dataNascimento;
+
+    //perfil do aluno
+    @Enumerated(EnumType.STRING)
+    @Column(name = "perfil_aluno")
+    private PerfilAluno perfilAluno;
 
     // Quando o aluno é criado ele é ativado
     @Column(nullable = false, columnDefinition = "BOOLEAN")

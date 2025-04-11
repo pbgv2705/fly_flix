@@ -30,12 +30,22 @@ public class DefaultAdminUserConfig implements CommandLineRunner {
     public void run(String... args) throws Exception {
 
         var roleAdmin = perfilUsuarioRepository.findByName(PerfilUsuario.Values.ADMIN.name());
+        System.out.println("******************************************************************************************" );
+        System.out.println("RoleAdmin: " + roleAdmin);
+        System.out.println("******************************************************************************************" );
         var userAdmin = usuarioRepository.findByLogin("admin@admin.com");
+
+        if (roleAdmin == null) {
+            System.out.println("Role ADMIN not found in the database. Aborting user creation.");
+            return;
+        }
 
         userAdmin.ifPresentOrElse(
                 // User admin already exists
                 user ->{
-                    System.out.println("User admin already exists");
+
+                    System.out.println("Creating admin user");
+
                 },
                 () -> { // User admin not exists and will be created
                     var usuario = new Usuario();
@@ -44,6 +54,10 @@ public class DefaultAdminUserConfig implements CommandLineRunner {
                     usuario.setSenha(passwordEncoder.encode("FlyAdmin"));
                     usuario.setPerfiles(Set.of(roleAdmin));
                     usuarioRepository.save(usuario);
+
+                    System.out.println("User admin created");
+                    System.out.println(usuario);
+
 
                 });
     }

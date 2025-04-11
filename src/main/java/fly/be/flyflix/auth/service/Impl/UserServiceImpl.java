@@ -2,8 +2,10 @@ package fly.be.flyflix.auth.service.Impl;
 
 import fly.be.flyflix.auth.controller.dto.DadosAtualizacaoAluno;
 import fly.be.flyflix.auth.controller.dto.DadosDetalhamentoAluno;
+import fly.be.flyflix.auth.controller.dto.ObterAluno;
 import fly.be.flyflix.auth.entity.Aluno;
 import fly.be.flyflix.auth.controller.dto.CadastroAluno;
+import fly.be.flyflix.auth.entity.PerfilAluno;
 import fly.be.flyflix.auth.entity.PerfilUsuario;
 import fly.be.flyflix.auth.entity.Usuario;
 import fly.be.flyflix.auth.repository.AlunoRepository;
@@ -20,6 +22,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -63,12 +66,17 @@ public class UserServiceImpl implements UserService {
         }
 
         //Criando objeto com os dados do usuario
-        var usuarioPerfil = perfilUsuarioRepository.findByName(PerfilUsuario.Values.ALUNO.name());
+
+        //validando que perfil existe
+        PerfilUsuario.Values perfilUsuarioEnum = PerfilUsuario.Values.valueOf(dados.perfil().toUpperCase());
+        PerfilUsuario usuarioPerfil = perfilUsuarioRepository.findByName(perfilUsuarioEnum.name().toLowerCase());
 
         // Verificar se o perfil foi encontrado
         if (usuarioPerfil == null) {
-            // Lançar uma exceção ou retornar uma resposta de erro
-            throw new IllegalStateException("Perfil 'ALUNO' não encontrado.");
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Dados do perfil:" + perfilUsuarioEnum.name() + " nao encontrados");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+
         }
 
         //Criando objeto com os dados do usuario
@@ -76,19 +84,20 @@ public class UserServiceImpl implements UserService {
                 .cpf(dados.cpf())
                 .login(dados.email())
                 .senha(passwordEncoder.encode(dados.senha()))
-                .perfiles(Set.of(usuarioPerfil))  // Asignando Rol Aluno
+                .perfiles(Set.of(usuarioPerfil))  // Asignando Rol de ADMIN OU ALUNO
                 .build();
         usuarioRepository.save(usuario);
 
 
         //Criando objeto com os dados do aluno
-
+        PerfilAluno perfilAlunoEnum = PerfilAluno.valueOf(dados.perfilAluno().replace(" ", "_").toUpperCase());
         Aluno aluno = Aluno.builder()
                     .cpf(dados.cpf())
                     .email(dados.email())
                     .usuario(usuario)
                     .nome(dados.nome())
                     .dataNascimento(dados.dataNascimento())
+                    .perfilAluno(perfilAlunoEnum)
                     .ativo(true)
                     .build();
 
@@ -97,11 +106,14 @@ public class UserServiceImpl implements UserService {
         return ResponseEntity.ok().build();
     }
 
+    //AtualizarAluno
     @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     @Override
     public ResponseEntity<Map<String, Object>> atualizarAluno(DadosAtualizacaoAluno dados) {
         var alunoDB = alunoRepository.getReferenceById(dados.id());
         var usuarioDB = alunoDB.getUsuario();
+
+        PerfilAluno perfilAlunoEnum = PerfilAluno.valueOf(dados.perfilAluno().replace(" ", "_").toUpperCase());
 
         //validar que tudos os dados estao preenchidos
          if( dados.nome() != null && dados.email() != null && dados.cpf() != null && dados.dataNascimento() != null && dados.ativo() != null){
@@ -110,6 +122,7 @@ public class UserServiceImpl implements UserService {
             alunoDB.setEmail(dados.email());
             alunoDB.setCpf(dados.cpf());
             alunoDB.setDataNascimento(dados.dataNascimento());
+            alunoDB.setPerfilAluno(perfilAlunoEnum);
             alunoDB.setAtivo(dados.ativo());
 
             //setar os dados do usuario do aluno email e cpf
@@ -132,6 +145,7 @@ public class UserServiceImpl implements UserService {
 
     }
 
+    //Remover Aluno
     @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     @Override
     public ResponseEntity<Map<String, Object>> removerAluno(long id) {
@@ -150,10 +164,11 @@ public class UserServiceImpl implements UserService {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
+    //Get Aluno
     @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     @Override
     public ResponseEntity<Map<String, Object>> obterAluno(long id) {
-        var alunoDB= alunoRepository.findById(id);
+        Optional<ObterAluno> alunoDB = alunoRepository.findById(id).map(ObterAluno::new);
 
         if (alunoDB.isEmpty()) {
             Map<String, Object> response = new HashMap<>();
@@ -171,6 +186,7 @@ public class UserServiceImpl implements UserService {
     @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     @Override
     public Page<DadosDetalhamentoAluno> listar(Pageable paginacao) {
+
         return alunoRepository.findAllByAtivoTrue(paginacao)
                 .map(DadosDetalhamentoAluno::new);
     }
