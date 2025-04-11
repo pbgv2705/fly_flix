@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface PerfilUsuarioRepository extends JpaRepository<PerfilUsuario, Long> {
-    Optional<PerfilUsuario> findByName(String name);
+    <Optinal> PerfilUsuario findByName(String name);
 }

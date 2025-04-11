@@ -63,7 +63,10 @@ public class PasswordResetServiceImpl implements PasswordResetService {
         passwordResetTokenRepository.save(resetToken);
 
         String link = baseUrl + "/resetar-senha?token=" + token;
-        String conteudo = "Redifina sua senha <a href='" + link + "'>Clique aqui</a>";
+        String conteudo = "<div style='text-align: center;'>"
+                + "<h2><strong>Flyflix Education - Password Reset</strong></h2>"
+                + "<p>Redefina sua senha <a href='" + link + "'>Clique aqui</a></p>"
+                + "</div>";
         //HABLITAR SÓ EM DEPLOY sendEmail
         //emailService.sendEmail(dto.email(), "Redefinir senha", conteudo);
 
