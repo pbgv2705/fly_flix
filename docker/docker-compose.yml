@@ -1,13 +1,21 @@
 services:
   mysql:
-    image: mysql
+    image: mysql:8.0
+    container_name: mysql_flyflix
     ports:
       - "3306:3306"
-    expose:
-      - "3306"
     environment:
       - MYSQL_USER=admin
       - MYSQL_PASSWORD=123
       - MYSQL_DATABASE=flyflix
       - MYSQL_ROOT_PASSWORD=123
+      - TZ=America/Sao_Paulo
+      - MYSQL_CHARSET=utf8mb4
+      - MYSQL_COLLATION=utf8mb4_unicode_ci
+    volumes:
+      - mysql_data:/var/lib/mysql
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
 
