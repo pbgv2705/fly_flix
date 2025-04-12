@@ -30,19 +30,28 @@ public class SecurityConfig {
 
     @Value("${jwt.public.key}")
     private RSAPublicKey publicKey;
+
     @Value("${jwt.private.key}")
     private RSAPrivateKey privateKey;
 
-
     @Bean
-    public SecurityFilterChain securityFilterChain (HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
                 .authorizeHttpRequests(authorize -> authorize
+                        // Swagger endpoints liberados
+                        .requestMatchers(
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html"
+                        ).permitAll()
+                        // Endpoints públicos da sua API
                         .requestMatchers(HttpMethod.POST, "/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/esqueci-senha").permitAll()
                         .requestMatchers(HttpMethod.POST, "/resetar-senha").permitAll()
+                        // Restringe criação de alunos a admin
                         .requestMatchers(HttpMethod.POST, "/alunos").hasAuthority("SCOPE_ADMIN")
+                        // Todas as outras rotas exigem autenticação
                         .anyRequest().authenticated()
                 )
                 .csrf(csrf -> csrf.disable())
@@ -52,13 +61,13 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // decoficar e validar token da requisição com chave public
+    // Decodifica e valida token da requisição com chave pública
     @Bean
     public JwtDecoder jwtDecoder() {
         return NimbusJwtDecoder.withPublicKey(publicKey).build();
     }
 
-    //criar e codificar token do inicio de sessão (front end deve armazenar token no local storage e utilizar ele nas proximas requisições)
+    // Cria e codifica token no início da sessão
     @Bean
     public JwtEncoder jwtEncoder() {
         JWK jwk = new RSAKey.Builder(this.publicKey).privateKey(this.privateKey).build();
@@ -66,10 +75,9 @@ public class SecurityConfig {
         return new NimbusJwtEncoder(jwks);
     }
 
-    //encriptar senha
+    // Encripta senhas com BCrypt
     @Bean
-    public BCryptPasswordEncoder bCryptPasswordEncoder () {
+    public BCryptPasswordEncoder bCryptPasswordEncoder() {
         return new BCryptPasswordEncoder();
     }
-
 }
