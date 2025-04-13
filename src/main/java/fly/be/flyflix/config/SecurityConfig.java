@@ -19,6 +19,7 @@ import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
 
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
@@ -37,9 +38,17 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain (HttpSecurity http) throws Exception {
 
-        http
+        //modificar cors on deploy
+        http.cors(cors -> cors.configurationSource(request -> {
+            CorsConfiguration config = new CorsConfiguration();
+            config.addAllowedOrigin("*"); // Allow all origins
+            config.addAllowedMethod("*"); // Allow all HTTP methods (GET, POST, etc.)
+            config.addAllowedHeader("*"); // Allow all headers
+            return config;
+        }))
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(HttpMethod.POST, "/login").permitAll()
+
                         .requestMatchers(HttpMethod.POST, "/esqueci-senha").permitAll()
                         .requestMatchers(HttpMethod.POST, "/resetar-senha").permitAll()
                         .requestMatchers(HttpMethod.POST, "/alunos").hasAuthority("SCOPE_ADMIN")

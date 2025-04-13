@@ -13,6 +13,7 @@ public interface AlunoRepository extends JpaRepository<Aluno, Long> {
 
     Page<Aluno> findAllByAtivoTrue(Pageable paginacao);
     Optional<Aluno> findById(Long id);
+    Optional <Aluno> findByEmail(String email);
 
 
 }
