@@ -64,7 +64,7 @@ services:
 volumes:
   mysql_data:
   minio_data:
-
-networks:
+  networks:
   backend_network:
     driver: bridge
+

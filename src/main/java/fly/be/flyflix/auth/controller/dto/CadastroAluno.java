@@ -1,5 +1,7 @@
 package fly.be.flyflix.auth.controller.dto;
 
+import fly.be.flyflix.auth.entity.PerfilAluno;
+import fly.be.flyflix.auth.entity.PerfilUsuario;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -26,9 +28,13 @@ public record CadastroAluno(
 
         @NotNull
         @Past (message = "Data de nascimento inválida")
-        LocalDate dataNascimento
+        LocalDate dataNascimento,
 
+        @NotNull
+        String perfil,
 
+        @NotNull
+        String perfilAluno
 
 ) {
 }

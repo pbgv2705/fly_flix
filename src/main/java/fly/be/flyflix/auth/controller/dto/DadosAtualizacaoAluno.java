@@ -32,6 +32,9 @@ public record DadosAtualizacaoAluno(
         LocalDate dataNascimento,
 
         @NotNull
-        Boolean ativo
+        Boolean ativo,
+
+        @NotNull
+        String perfilAluno
 ) {
 }
