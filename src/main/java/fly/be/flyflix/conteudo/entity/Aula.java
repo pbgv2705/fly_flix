@@ -1,56 +1,57 @@
 package fly.be.flyflix.conteudo.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
+import lombok.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
-@Table(name = "aulas")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@Table(name = "aulas") // <- se o banco usa "aulas"
+@ToString(onlyExplicitlyIncluded = true)
 public class Aula {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
+    @ToString.Include
     private Long id;
 
+    @NotBlank
+    @Column(nullable = false)
     private String titulo;
 
-    private String tipo; // vídeo, texto, artigo, quiz
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private TipoConteudo tipo;
 
+    @NotNull
+    @Column(nullable = false)
     private Integer ordem;
 
+    @PositiveOrZero
     private Integer duracaoEstimada; // em minutos
 
-    private String linkConteudo; // URL, pode ser link para vídeo ou outro tipo de conteúdo
+    private String linkConteudo; // URL para vídeo, PDF, etc.
+
+    @OneToMany(mappedBy = "aula", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Conteudo> conteudos = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "modulo_id")
+    @JoinColumn(name = "modulo_id", nullable = false)
     private Modulo modulo;
 
-    // Getters e Setters
-    public Long getId() { return id; }
+    public void setCurso(Curso curso) {
+    }
 
-    public void setId(Long id) { this.id = id; }
-
-    public String getTitulo() { return titulo; }
-
-    public void setTitulo(String titulo) { this.titulo = titulo; }
-
-    public String getTipo() { return tipo; }
-
-    public void setTipo(String tipo) { this.tipo = tipo; }
-
-    public Integer getOrdem() { return ordem; }
-
-    public void setOrdem(Integer ordem) { this.ordem = ordem; }
-
-    public Integer getDuracaoEstimada() { return duracaoEstimada; }
-
-    public void setDuracaoEstimada(Integer duracaoEstimada) { this.duracaoEstimada = duracaoEstimada; }
-
-    public String getLinkConteudo() { return linkConteudo; }
-
-    public void setLinkConteudo(String linkConteudo) { this.linkConteudo = linkConteudo; }
-
-    public Modulo getModulo() { return modulo; }
-
-    public void setModulo(Modulo modulo) { this.modulo = modulo; }
+    public enum TipoConteudo {
+        VIDEO, TEXTO, ARTIGO, QUIZ, PDF
+    }
 }
-

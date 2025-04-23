@@ -48,6 +48,10 @@ public class Aluno {
     @Column(nullable = false, columnDefinition = "BOOLEAN")
     private Boolean ativo = true;
 
+    public Aluno(long id, String nome) {
+    }
+
+
     //desativar aluno
     public boolean inativar() {
         this.ativo = false;
@@ -61,6 +65,9 @@ public class Aluno {
             return true; // Aluno ativado
         }
         return false; // Aluno já estava ativado
+    }
+
+    public void setSenha(String number) {
     }
 
     //@ManyToMany um aluno pode estar em varios cursos e um curso pode ter varios alunos

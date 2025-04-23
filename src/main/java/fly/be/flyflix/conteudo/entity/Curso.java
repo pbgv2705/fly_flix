@@ -1,136 +1,97 @@
 package fly.be.flyflix.conteudo.entity;
 
-import fly.be.flyflix.auth.entity.Usuario;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import lombok.*;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Entity
-@Table(name = "cursos")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@Table(name = "cursos", indexes = {
+        @Index(name = "idx_curso_data_publicacao", columnList = "data_publicacao"),
+        @Index(name = "idx_curso_nivel", columnList = "nivel"),
+        @Index(name = "idx_curso_autor_id", columnList = "autor_id")
+})
 public class Curso {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Long id;
 
+    @NotNull
+    @Size(min = 3, max = 255)
+    @Column(nullable = false)
     private String titulo;
-    private String descricao;
-    private LocalDate dataPublicacao; // 🗓️ Data de lançamento
 
-    private Integer visualizacoes = 0; // 👁️ Contador de views
+    @Column(columnDefinition = "TEXT")
+    private String descricao;
+
+    @Column(name = "data_publicacao")
+    private LocalDate dataPublicacao;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private Integer visualizacoes = 0;
 
     private String imagemCapa;
 
     @ElementCollection
     @CollectionTable(name = "curso_tags", joinColumns = @JoinColumn(name = "curso_id"))
     @Column(name = "tag")
-    private List<String> tags = new ArrayList<>(); // 🏷️ Categorias ou palavras-chave;
+    @Builder.Default
+    private List<String> tags = new ArrayList<>();
 
-    private String nivel; // iniciante, intermediario, avancado
+    @Enumerated(EnumType.STRING)
+    private NivelCurso nivel;
 
-    private Long autorId; // ID vindo do microserviço de usuários
+    @NotNull
+    @Column(name = "autor_id", nullable = false)
+    private Long autorId;
 
+    @Builder.Default
     @OneToMany(mappedBy = "curso", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<Modulo> modulos;
+    private List<Modulo> modulos = new ArrayList<>();
 
     @OneToMany(mappedBy = "curso", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<Avaliacao> avaliacoes = new ArrayList<>();
 
-    private Double mediaAvaliacoes = 0.0; // ⭐ Média das avaliações
+    @Column(nullable = false)
+    @Builder.Default
+    private Double mediaAvaliacoes = 0.0;
 
-    private Integer totalAvaliacoes = 0; // 📊 Quantidade de avaliações recebidas
+    @Column(nullable = false)
+    private Integer totalAvaliacoes = 0;
 
-    @ManyToMany
-    @JoinTable(
-            name = "curso_usuario_assistiu",
-            joinColumns = @JoinColumn(name = "curso_id"),
-            inverseJoinColumns = @JoinColumn(name = "usuario_id")
-    )
-    private Set<Usuario> usuariosQueAssistiram = new HashSet<>(); // 👥 Para recomendações
+    // Recomendação: Evitar ManyToMany com outra entidade de microserviço
+    // Substituído por lista de IDs dos usuários
+    @ElementCollection
+    @CollectionTable(name = "curso_usuario_ids", joinColumns = @JoinColumn(name = "curso_id"))
+    @Column(name = "usuario_id")
+    @Builder.Default
+    private Set<Long> usuariosQueAssistiramIds = new HashSet<>();
 
-    // Getters e Setters
-    public Long getId() { return id; }
-
-    public void setId(Long id) { this.id = id; }
-
-    public String getTitulo() { return titulo; }
-
-    public void setTitulo(String titulo) { this.titulo = titulo; }
-
-    public String getDescricao() { return descricao; }
-
-    public void setDescricao(String descricao) { this.descricao = descricao; }
-
-    public String getImagemCapa() { return imagemCapa; }
-
-    public void setImagemCapa(String imagemCapa) { this.imagemCapa = imagemCapa; }
-
-    public List<String> getTags() { return tags; }
-
-    public void setTags(List<String> tags) { this.tags = tags; }
-
-    public String getNivel() { return nivel; }
-
-    public void setNivel(String nivel) { this.nivel = nivel; }
-
-    public Long getAutorId() { return autorId; }
-
-    public void setAutorId(Long autorId) { this.autorId = autorId; }
-
-    public List<Modulo> getModulos() { return modulos; }
-
-    public LocalDate getDataPublicacao() {
-        return dataPublicacao;
+    // Métodos de negócio
+    public void adicionarModulo(Modulo modulo) {
+        modulos.add(modulo);
+        modulo.setCurso(this);
     }
 
-    public void setDataPublicacao(LocalDate dataPublicacao) {
-        this.dataPublicacao = dataPublicacao;
+    public void removerModulo(Modulo modulo) {
+        modulos.remove(modulo);
+        modulo.setCurso(null);
     }
 
-    public Integer getVisualizacoes() {
-        return visualizacoes;
+    public enum NivelCurso {
+        INICIANTE, INTERMEDIARIO, AVANCADO
     }
-
-    public void setVisualizacoes(Integer visualizacoes) {
-        this.visualizacoes = visualizacoes;
-    }
-
-    public Double getMediaAvaliacoes() {
-        return mediaAvaliacoes;
-    }
-
-    public void setMediaAvaliacoes(Double mediaAvaliacoes) {
-        this.mediaAvaliacoes = mediaAvaliacoes;
-    }
-
-    public Integer getTotalAvaliacoes() {
-        return totalAvaliacoes;
-    }
-
-    public void setTotalAvaliacoes(Integer totalAvaliacoes) {
-        this.totalAvaliacoes = totalAvaliacoes;
-    }
-
-    public Set<Usuario> getUsuariosQueAssistiram() {
-        return usuariosQueAssistiram;
-    }
-
-    public void setUsuariosQueAssistiram(Set<Usuario> usuariosQueAssistiram) {
-        this.usuariosQueAssistiram = usuariosQueAssistiram;
-    }
-
-    public void setModulos(List<Modulo> modulos) {
-        this.modulos = modulos;
-        if (modulos != null) {
-            modulos.forEach(modulo -> modulo.setCurso(this));
-        }
-    }
-
-
-
 }
-

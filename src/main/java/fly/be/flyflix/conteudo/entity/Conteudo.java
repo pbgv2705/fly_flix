@@ -1,56 +1,46 @@
 package fly.be.flyflix.conteudo.entity;
 
 import jakarta.persistence.*;
+import lombok.*;
 
 @Entity
 @Table(name = "conteudos")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@ToString(onlyExplicitlyIncluded = true)
 public class Conteudo {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
+    @ToString.Include
     private Long id;
 
-    private String tipo; // vídeo, texto, artigo, pdf
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private TipoConteudo tipo; // 🎥 📄 ❓
 
-    private String url; // link do conteúdo (ex: S3, local ou CDN)
+    private String url; // Link para vídeo, PDF, etc. (pode ser S3, CDN ou local)
 
-    private Integer tempoEstimadoLeitura; // em minutos
+    private Integer tempoEstimadoLeitura; // Em minutos (aplicável para texto/PDF)
 
     @Lob
-    private String texto; // conteúdo em Markdown ou HTML
+    private String texto; // HTML ou Markdown (para conteúdos diretamente embutidos)
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "aula_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "aula_id", nullable = false)
     private Aula aula;
 
     @Column(nullable = false)
+    @Builder.Default
     private boolean ativo = true;
 
-    public boolean isAtivo() { return ativo; }
-    public void setAtivo(boolean ativo) { this.ativo = ativo; }
-
-    // Getters e Setters
-    public Long getId() { return id; }
-
-    public void setId(Long id) { this.id = id; }
-
-    public String getTipo() { return tipo; }
-
-    public void setTipo(String tipo) { this.tipo = tipo; }
-
-    public String getUrl() { return url; }
-
-    public void setUrl(String url) { this.url = url; }
-
-    public Integer getTempoEstimadoLeitura() { return tempoEstimadoLeitura; }
-
-    public void setTempoEstimadoLeitura(Integer tempoEstimadoLeitura) { this.tempoEstimadoLeitura = tempoEstimadoLeitura; }
-
-    public String getTexto() { return texto; }
-
-    public void setTexto(String texto) { this.texto = texto; }
-
-    public Aula getAula() { return aula; }
-
-    public void setAula(Aula aula) { this.aula = aula; }
+    public enum TipoConteudo {
+        VIDEO, PDF, QUIZ, TEXTO, ARTIGO
+    }
 }
+

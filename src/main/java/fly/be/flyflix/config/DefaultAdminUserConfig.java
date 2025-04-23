@@ -36,6 +36,15 @@ public class DefaultAdminUserConfig implements CommandLineRunner {
     public void run(String... args) throws Exception {
 
         var roleAdmin = perfilUsuarioRepository.findByName(PerfilUsuario.Values.ADMIN.name());
+
+        if (roleAdmin == null) {
+            System.err.println("Perfil ADMIN não encontrado no banco de dados!");
+            return; // ou lançar uma exceção se for obrigatório
+        }
+
+        
+      
+
         System.out.println("******************************************************************************************" );
         System.out.println("RoleAdmin: " + roleAdmin);
         System.out.println("******************************************************************************************" );
@@ -44,10 +53,8 @@ public class DefaultAdminUserConfig implements CommandLineRunner {
         var userAdmin = usuarioRepository.findByLogin(adminEmail);
         var alunoAdmin = alunoRepository.findByEmail(adminEmail);
 
-        if (roleAdmin == null) {
-            System.out.println("Role ADMIN not found in the database. ");
-            return;
-        }
+
+       
         userAdmin.ifPresentOrElse(
                 // User admin already exists
                 user ->{
@@ -62,6 +69,8 @@ public class DefaultAdminUserConfig implements CommandLineRunner {
                     usuario.setSenha(passwordEncoder.encode("FlyAdmin")); // SENHA ADMINISTRADOR
                     usuario.setPerfiles(Set.of(roleAdmin));
                     usuarioRepository.save(usuario);
+                    // Log após salvar
+                    System.out.println("Usuário admin salvo no banco com ID: " + usuario.getId());
 
                     System.out.println("User admin created");
                     System.out.println(usuario);
@@ -91,6 +100,9 @@ public class DefaultAdminUserConfig implements CommandLineRunner {
 
 
                 });
+
     }
+
+
 }
 

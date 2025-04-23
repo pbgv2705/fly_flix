@@ -26,7 +26,7 @@ import java.security.interfaces.RSAPublicKey;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity
+@EnableMethodSecurity(prePostEnabled = true) // Garante que @PreAuthorize funcione
 public class SecurityConfig {
 
     @Value("${jwt.public.key}")
@@ -35,8 +35,21 @@ public class SecurityConfig {
     @Value("${jwt.private.key}")
     private RSAPrivateKey privateKey;
 
+    public RSAPublicKey getPublicKey() {
+        return publicKey;
+    }
+
+    public RSAPrivateKey getPrivateKey() {
+        return privateKey;
+    }
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+
+
+        http
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
         //modificar cors on deploy
         http.cors(cors -> cors.configurationSource(request -> {
@@ -46,45 +59,47 @@ public class SecurityConfig {
             config.addAllowedHeader("*"); // Allow all headers
             return config;
         }))
+
                 .authorizeHttpRequests(authorize -> authorize
-                        // Swagger endpoints liberados
+                        // Endpoints públicos
                         .requestMatchers(
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html"
                         ).permitAll()
-                        // Endpoints públicos da sua API
-                        .requestMatchers(HttpMethod.POST, "/login").permitAll()
 
-                        .requestMatchers(HttpMethod.POST, "/esqueci-senha").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/resetar-senha").permitAll()
-                        // Restringe criação de alunos a admin
+                        .requestMatchers(HttpMethod.POST, "/login", "/esqueci-senha", "/resetar-senha").permitAll()
+                        // Apenas ADMIN pode criar aluno
+
                         .requestMatchers(HttpMethod.POST, "/alunos").hasAuthority("SCOPE_ADMIN")
-                        // Todas as outras rotas exigem autenticação
+                        // Qualquer usuário autenticado pode acessar
+                        .requestMatchers(HttpMethod.GET, "/teste-auth").authenticated()
+                        // Qualquer outra rota exige autenticação
                         .anyRequest().authenticated()
+                        //.anyRequest().permitAll()
                 )
-                .csrf(csrf -> csrf.disable())
-                .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+                .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
 
         return http.build();
     }
 
-    // Decodifica e valida token da requisição com chave pública
+    // Decodifica JWT recebido com chave pública
     @Bean
     public JwtDecoder jwtDecoder() {
         return NimbusJwtDecoder.withPublicKey(publicKey).build();
     }
 
-    // Cria e codifica token no início da sessão
+    // Codifica JWT com chave privada
     @Bean
     public JwtEncoder jwtEncoder() {
-        JWK jwk = new RSAKey.Builder(this.publicKey).privateKey(this.privateKey).build();
+        JWK jwk = new RSAKey.Builder(publicKey)
+                .privateKey(privateKey)
+                .build();
         var jwks = new ImmutableJWKSet<>(new JWKSet(jwk));
         return new NimbusJwtEncoder(jwks);
     }
 
-    // Encripta senhas com BCrypt
+    // Encoder de senha padrão
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
         return new BCryptPasswordEncoder();

@@ -7,17 +7,15 @@ import fly.be.flyflix.auth.repository.AlunoRepository;
 import fly.be.flyflix.auth.repository.UsuarioRepository;
 import fly.be.flyflix.auth.service.LoginService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
-
-import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
+import java.time.Instant;
 import java.util.stream.Collectors;
 
 @Service
@@ -38,7 +36,7 @@ public class LoginServiceImpl implements LoginService {
 
     //Login
     @Override
-    public ResponseEntity<LoginResponse> login(LoginRequest loginRequest) {
+    public LoginResponse login(LoginRequest loginRequest) {
 
         var usuario = usuarioRepository.findByLogin(loginRequest.login());
 
@@ -54,7 +52,8 @@ public class LoginServiceImpl implements LoginService {
         var expiresIn = 604800L; // expira em 1 semana
         var scopes = usuario.get().getPerfiles()
                 .stream()
-                .map(role -> role.getName().toUpperCase())
+                .map(role -> "SCOPE_" + role.getName().toUpperCase())
+                //.map(role -> role.getName().toUpperCase())
                 .collect(Collectors.joining(" "));
 
 
@@ -71,7 +70,7 @@ public class LoginServiceImpl implements LoginService {
         var jwtValue = jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
 
 
-        return ResponseEntity.ok(new LoginResponse(jwtValue, expiresIn));
+        return ResponseEntity.ok(new LoginResponse(jwtValue, expiresIn)).getBody();
     }
 
 

@@ -2,11 +2,10 @@ package fly.be.flyflix.auth.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.util.HashSet;
 import java.util.Set;
 
-@Table(name = "perfiles")
+@Table(name = "PERFILES")
 @Entity(name = "Perfil")
 @Getter
 @Setter
@@ -26,6 +25,7 @@ public class PerfilUsuario {
     public enum Values {
         ADMIN(1L),
         ALUNO(2L); //
+
 
 
         long roleId;

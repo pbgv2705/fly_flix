@@ -1,4 +1,4 @@
-package fly.be.flyflix.conteudo.dto.curso;
+package fly.be.flyflix.conteudo.dto;
 
 import fly.be.flyflix.conteudo.entity.Curso;
 
