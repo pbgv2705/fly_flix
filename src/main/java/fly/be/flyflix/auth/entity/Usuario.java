@@ -40,7 +40,6 @@ public class Usuario {
     )
     private Set<PerfilUsuario> perfiles = new HashSet<>();
 
-
     public boolean isLoginCorrect(LoginRequest loginRequest, PasswordEncoder passwordEncoder) {
         return passwordEncoder.matches(loginRequest.senha(), this.senha);
     }
