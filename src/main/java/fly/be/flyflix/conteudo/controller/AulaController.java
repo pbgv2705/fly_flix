@@ -1,12 +1,14 @@
 package fly.be.flyflix.conteudo.controller;
 
-
 import fly.be.flyflix.conteudo.dto.aula.CadastroAula;
 import fly.be.flyflix.conteudo.dto.aula.DadosAtualizacaoAula;
 import fly.be.flyflix.conteudo.dto.aula.DadosDetalhamentoAula;
 import fly.be.flyflix.conteudo.entity.Aula;
+import fly.be.flyflix.conteudo.entity.Conteudo;
+import fly.be.flyflix.conteudo.mapper.ConteudoMapper;
 import fly.be.flyflix.conteudo.repository.AulaRepository;
 import fly.be.flyflix.conteudo.repository.ModuloRepository;
+import fly.be.flyflix.conteudo.repository.ProgressoRepository;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/aulas")
@@ -27,7 +30,10 @@ public class AulaController {
     @Autowired
     private ModuloRepository moduloRepository;
 
-    @PostMapping
+    @Autowired
+    private ProgressoRepository progressoRepository;
+
+   @PostMapping
     @Transactional
     public ResponseEntity<?> cadastrar(@RequestBody @Valid CadastroAula dados) {
         var modulo = moduloRepository.findById(dados.moduloId())
@@ -35,10 +41,8 @@ public class AulaController {
 
         Aula aula = new Aula();
         aula.setTitulo(dados.titulo());
-        aula.setTipo(dados.tipo());
         aula.setOrdem(dados.ordem());
         aula.setDuracaoEstimada(dados.duracaoEstimada());
-        aula.setLinkConteudo(dados.linkConteudo());
         aula.setModulo(modulo);
 
         aulaRepository.save(aula);
@@ -47,16 +51,9 @@ public class AulaController {
 
     @GetMapping
     public List<DadosDetalhamentoAula> listar() {
-        return aulaRepository.findAll().stream().map(aula ->
-                new DadosDetalhamentoAula(
-                        aula.getId(),
-                        aula.getTitulo(),
-                        aula.getTipo(),
-                        aula.getOrdem(),
-                        aula.getDuracaoEstimada(),
-                        aula.getLinkConteudo(),
-                        aula.getModulo().getId()
-                )).toList();
+        return aulaRepository.findAll().stream()
+                .map(DadosDetalhamentoAula::new)
+                .toList();
     }
 
     @PutMapping
@@ -69,11 +66,16 @@ public class AulaController {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Módulo não encontrado"));
 
         aula.setTitulo(dados.titulo());
-        aula.setTipo(dados.tipo());
         aula.setOrdem(dados.ordem());
         aula.setDuracaoEstimada(dados.duracaoEstimada());
-        aula.setLinkConteudo(dados.linkConteudo());
         aula.setModulo(modulo);
+
+        List<Conteudo> conteudosConvertidos = dados.conteudos().stream()
+                .map(ConteudoMapper::toEntity)
+                .peek(c -> c.setAula(aula))
+                .collect(Collectors.toList());
+
+        aula.setConteudos(conteudosConvertidos);
 
         return ResponseEntity.ok().build();
     }
@@ -90,15 +92,7 @@ public class AulaController {
         var aula = aulaRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Aula não encontrada"));
 
-        var dto = new DadosDetalhamentoAula(
-                aula.getId(),
-                aula.getTitulo(),
-                aula.getTipo(),
-                aula.getOrdem(),
-                aula.getDuracaoEstimada(),
-                aula.getLinkConteudo(),
-                aula.getModulo().getId()
-        );
-        return ResponseEntity.ok(dto);
+        return ResponseEntity.ok(new DadosDetalhamentoAula(aula));
     }
+
 }

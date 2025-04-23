@@ -33,10 +33,14 @@ public class ModuloService {
         return repository.save(modulo);
     }
 
+
+
     public Page<DetalhamentoModulo> listar(Pageable paginacao) {
         return repository.findAll(paginacao)
-                .map(m -> new DetalhamentoModulo(m.getId(), m.getTitulo(), m.getOrdem(), m.getCurso().getId()));
+                .map(modulo -> new DetalhamentoModulo(modulo)); // Usando o construtor que aceita um objeto Modulo
     }
+
+
 
     @Transactional
     public Modulo atualizar(AtualizacaoModulo dados) {
@@ -53,6 +57,6 @@ public class ModuloService {
 
     public DetalhamentoModulo detalhar(Long id) {
         Modulo m = repository.findById(id).orElseThrow();
-        return new DetalhamentoModulo(m.getId(), m.getTitulo(), m.getOrdem(), m.getCurso().getId());
+        return new DetalhamentoModulo(m);
     }
 }
