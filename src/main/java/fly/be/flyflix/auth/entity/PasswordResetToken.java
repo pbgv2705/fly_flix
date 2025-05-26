@@ -22,7 +22,8 @@ public class PasswordResetToken {
     @OneToOne
     private Usuario usuario;
 
+
     private LocalDateTime expirationDate;
 
-
 }
+

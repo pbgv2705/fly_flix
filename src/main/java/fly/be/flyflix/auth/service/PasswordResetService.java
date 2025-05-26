@@ -1,15 +1,17 @@
 package fly.be.flyflix.auth.service;
-
-import fly.be.flyflix.auth.controller.dto.ResetarSenha;
-import fly.be.flyflix.auth.controller.dto.SolicitarResetSenha;
+import fly.be.flyflix.auth.controller.dto.RedefinicaoSenhaDTO;
+import fly.be.flyflix.auth.controller.dto.RequisicaoResetSenhaDTO;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
 
 import java.util.Map;
 
-
 public interface PasswordResetService {
 
-    public ResponseEntity<Map<String, Object>> solicitarResetSenha(SolicitarResetSenha dto);
-    public ResponseEntity<Map<String, Object>> resetarSenha(ResetarSenha resetarSenha);
+    ResponseEntity<Map<String, Object>> solicitarResetSenha(RequisicaoResetSenhaDTO dto);
+
+    ResponseEntity<Map<String, Object>> redefinirSenha(RedefinicaoSenhaDTO dto);
+
+
 }
+
+

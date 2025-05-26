@@ -33,8 +33,7 @@ public class AvaliacaoService {
         // Atualiza média e contagem
         List<Avaliacao> avaliacoes = avaliacaoRepository.findByCursoId(cursoId);
         double media = avaliacoes.stream().mapToInt(Avaliacao::getNota).average().orElse(0.0);
-        curso.setMediaAvaliacoes(media);
-        curso.setTotalAvaliacoes(avaliacoes.size());
+
 
         cursoRepository.save(curso);
     }

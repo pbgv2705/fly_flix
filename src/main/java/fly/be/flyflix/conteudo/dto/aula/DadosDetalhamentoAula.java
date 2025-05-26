@@ -1,11 +1,8 @@
 package fly.be.flyflix.conteudo.dto.aula;
 
-import fly.be.flyflix.conteudo.dto.ConteudoDTO;
 import fly.be.flyflix.conteudo.entity.Aula;
-import fly.be.flyflix.conteudo.entity.Aula.TipoConteudo;
-import fly.be.flyflix.conteudo.mapper.ConteudoMapper;
-
-import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
 public record DadosDetalhamentoAula(
         Long id,
@@ -13,24 +10,18 @@ public record DadosDetalhamentoAula(
         Aula.TipoConteudo tipo,
         Integer ordem,
         Integer duracaoEstimada,
-        List<ConteudoDTO> conteudos,
         Long moduloId
 ) {
-    public DadosDetalhamentoAula(Aula aula) {
-        this(
+    public static DadosDetalhamentoAula from(Aula aula) {
+        return new DadosDetalhamentoAula(
                 aula.getId(),
                 aula.getTitulo(),
                 aula.getTipo(),
                 aula.getOrdem(),
                 aula.getDuracaoEstimada(),
-                aula.getConteudos().stream()
-                        .map(ConteudoMapper::toDTO)
-                        .toList(),
                 aula.getModulo().getId()
         );
     }
-
-
 }
 
 

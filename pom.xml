@@ -91,10 +91,17 @@
 				<version>8.0.0</version>
 			</dependency>
 
+			<dependency>
+				<groupId>org.postgresql</groupId>
+				<artifactId>postgresql</artifactId>
+				<version>42.5.0</version> <!-- ou a versão mais recente compatível -->
+			</dependency>
 
 
 
-		<!-- Armazenamento (MinIO) -->
+
+
+			<!-- Armazenamento (MinIO) -->
 		<dependency>
 			<groupId>io.minio</groupId>
 			<artifactId>minio</artifactId>

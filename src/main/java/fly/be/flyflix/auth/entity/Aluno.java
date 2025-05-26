@@ -1,74 +1,56 @@
 package fly.be.flyflix.auth.entity;
 
+import fly.be.flyflix.auth.enums.PerfilAluno;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Past;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
 
-@Table(name = "alunos")
-@Entity(name = "Aluno")
+@Entity
 @Getter
 @Setter
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(of = "id")
-public class Aluno {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(nullable = false)
-    private String cpf;
-
-    @OneToOne
-    //@JoinColumn(name = "cpf", referencedColumnName = "cpf") //mapear cpf do usuario e aluno
-    @JoinColumn(name = "usuario_id") // mapear id do usuario com o Aluno
-    private Usuario usuario;
+@EqualsAndHashCode(callSuper = true)
+public class Aluno extends Usuario {
 
     @Column(nullable = false)
     private String nome;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true) // email único e obrigatório
     private String email;
 
-    @Past(message = "Data de nascimento inválida")
+    @Column(name = "data_nascimento", nullable = false)
     private LocalDate dataNascimento;
 
-    //perfil do aluno
     @Enumerated(EnumType.STRING)
-    @Column(name = "perfil_aluno")
+    @Column(name = "perfil_aluno", nullable = false)
     private PerfilAluno perfilAluno;
 
-    // Quando o aluno é criado ele é ativado
-    @Column(nullable = false, columnDefinition = "BOOLEAN")
+    @Column(nullable = false)
     private Boolean ativo = true;
 
-    public Aluno(long id, String nome) {
-    }
+    @Column(name = "curso_id")
+    private Long cursoId;
 
-
-    //desativar aluno
     public boolean inativar() {
-        this.ativo = false;
-        return true; // Aluno inativado
+        if (Boolean.TRUE.equals(this.ativo)) {
+            this.ativo = false;
+            return true;
+        }
+        return false;
     }
 
-    // ativar aluno
     public boolean ativar() {
         if (Boolean.FALSE.equals(this.ativo)) {
             this.ativo = true;
-            return true; // Aluno ativado
+            return true;
         }
-        return false; // Aluno já estava ativado
+        return false;
     }
 
-    public void setSenha(String number) {
+    @Override
+    public String getRole() {
+        return "ALUNO";
     }
-
-    //@ManyToMany um aluno pode estar em varios cursos e um curso pode ter varios alunos
 }

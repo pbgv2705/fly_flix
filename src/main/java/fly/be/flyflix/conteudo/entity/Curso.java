@@ -38,9 +38,7 @@ public class Curso {
     @Column(name = "data_publicacao")
     private LocalDate dataPublicacao;
 
-    @Column(nullable = false)
-    @Builder.Default
-    private Integer visualizacoes = 0;
+
 
     private String imagemCapa;
 
@@ -61,16 +59,6 @@ public class Curso {
     @OneToMany(mappedBy = "curso", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Modulo> modulos = new ArrayList<>();
 
-    @OneToMany(mappedBy = "curso", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
-    private List<Avaliacao> avaliacoes = new ArrayList<>();
-
-    @Column(nullable = false)
-    @Builder.Default
-    private Double mediaAvaliacoes = 0.0;
-
-    @Column(nullable = false)
-    private Integer totalAvaliacoes = 0;
 
     // Recomendação: Evitar ManyToMany com outra entidade de microserviço
     // Substituído por lista de IDs dos usuários

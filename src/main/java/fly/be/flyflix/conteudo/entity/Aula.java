@@ -38,11 +38,7 @@ public class Aula {
 
     @PositiveOrZero
     private Integer duracaoEstimada; // em minutos
-
     private String linkConteudo; // URL para vídeo, PDF, etc.
-
-    @OneToMany(mappedBy = "aula", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Conteudo> conteudos = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "modulo_id", nullable = false)

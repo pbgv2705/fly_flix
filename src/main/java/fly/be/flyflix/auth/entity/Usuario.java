@@ -1,23 +1,19 @@
 package fly.be.flyflix.auth.entity;
-
 import fly.be.flyflix.auth.controller.dto.LoginRequest;
+import fly.be.flyflix.auth.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
-
-import java.util.HashSet;
-import java.util.Set;
-
 
 @Table(name = "usuarios")
 @Entity(name = "Usuario")
 @Getter
 @Setter
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(of = "id")
-public class Usuario {
+@Inheritance(strategy = InheritanceType.JOINED)
+public abstract class Usuario {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,19 +22,19 @@ public class Usuario {
     @Column(unique = true, nullable = false)
     private String cpf;
 
-    @Column(unique = true, nullable = false)
-    private String login; //email
+    @Column(nullable = true)
+    private String nome;
 
-    @Column(nullable = false)
+    @Column(unique = true, nullable = false)
+    private String email;
+
+    @Column(nullable = true)
     private String senha;
 
-    @ManyToMany // asociando a PerfilUsuario para asignar roles
-    @JoinTable(
-            name = "usuario_perfil",
-            joinColumns = @JoinColumn(name = "usuario_id"),
-            inverseJoinColumns = @JoinColumn(name = "perfil_id")
-    )
-    private Set<PerfilUsuario> perfiles = new HashSet<>();
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Role role;
+    public abstract String getRole(); // <- agora as subclasses devem implementar
 
     public boolean isLoginCorrect(LoginRequest loginRequest, PasswordEncoder passwordEncoder) {
         return passwordEncoder.matches(loginRequest.senha(), this.senha);

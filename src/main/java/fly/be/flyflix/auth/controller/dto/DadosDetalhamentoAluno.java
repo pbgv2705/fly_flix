@@ -1,13 +1,20 @@
 package fly.be.flyflix.auth.controller.dto;
 
 import fly.be.flyflix.auth.entity.Aluno;
-import fly.be.flyflix.auth.entity.PerfilAluno;
-import fly.be.flyflix.auth.entity.Usuario;
+import fly.be.flyflix.auth.enums.PerfilAluno;
 
 import java.time.LocalDate;
-import java.util.Date;
 
-public record DadosDetalhamentoAluno (Long id, String cpf, String nome, String email, LocalDate dataNascimento, Boolean ativo, PerfilAluno perfilAluno) {
+public record DadosDetalhamentoAluno(
+        Long id,
+        String cpf,
+        String nome,
+        String email,
+        LocalDate dataNascimento,
+        Boolean ativo,
+        PerfilAluno perfilAluno
+) {
+    // Construtor que aceita Aluno e inicializa todos os campos do record
     public DadosDetalhamentoAluno(Aluno aluno) {
         this(
                 aluno.getId(),
@@ -16,7 +23,7 @@ public record DadosDetalhamentoAluno (Long id, String cpf, String nome, String e
                 aluno.getEmail(),
                 aluno.getDataNascimento(),
                 aluno.getAtivo(),
-                aluno.getPerfilAluno()
+                aluno.getPerfilAluno()  // Certifique-se que o método existe em Aluno
         );
     }
 }

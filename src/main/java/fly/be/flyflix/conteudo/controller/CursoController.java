@@ -2,7 +2,7 @@ package fly.be.flyflix.conteudo.controller;
 
 import fly.be.flyflix.conteudo.dto.curso.AtualizacaoCurso;
 import fly.be.flyflix.conteudo.dto.curso.CadastroCurso;
-import fly.be.flyflix.conteudo.dto.CursoResumoDTO;
+import fly.be.flyflix.conteudo.dto.curso.CursoResumoDTO;
 import fly.be.flyflix.conteudo.dto.curso.DetalhamentoCurso;
 import fly.be.flyflix.conteudo.entity.Curso;
 import fly.be.flyflix.conteudo.repository.CursoRepository;
@@ -97,18 +97,5 @@ public class CursoController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/recomendados")
-    public ResponseEntity<List<CursoResumoDTO>> recomendarCursos(@RequestParam Long usuarioId) {
-        return ResponseEntity.ok(cursoService.getCursosRecomendados(usuarioId));
-    }
 
-    @GetMapping("/novos")
-    public ResponseEntity<List<CursoResumoDTO>> cursosNovos() {
-        return ResponseEntity.ok(cursoService.getCursosNovos());
-    }
-
-    @GetMapping("/populares")
-    public ResponseEntity<List<CursoResumoDTO>> cursosPopulares() {
-        return ResponseEntity.ok(cursoService.getCursosPopulares());
-    }
 }

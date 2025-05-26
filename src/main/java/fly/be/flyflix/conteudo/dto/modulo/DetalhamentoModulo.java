@@ -22,8 +22,8 @@ public record DetalhamentoModulo(
                 modulo.getCurso().getId(),
                 // Convertendo a lista de aulas do módulo para a lista de DadosDetalhamentoAula
                 modulo.getAulas().stream()
-                        .map(DadosDetalhamentoAula::new) // Garantindo que DadosDetalhamentoAula possui um construtor adequado
-                        .collect(Collectors.toList()) // Uso do Collectors.toList() para ser explícito
+                        .map(DadosDetalhamentoAula::from)
+                        .collect(Collectors.toList())
         );
     }
 

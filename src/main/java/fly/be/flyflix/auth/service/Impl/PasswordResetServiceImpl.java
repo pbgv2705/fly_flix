@@ -1,112 +1,101 @@
 package fly.be.flyflix.auth.service.Impl;
 
-import fly.be.flyflix.auth.controller.dto.ResetarSenha;
-import fly.be.flyflix.auth.controller.dto.SolicitarResetSenha;
-import fly.be.flyflix.auth.entity.PasswordResetToken;
+import fly.be.flyflix.auth.controller.dto.RedefinicaoSenhaDTO;
+import fly.be.flyflix.auth.controller.dto.RequisicaoResetSenhaDTO;
+import fly.be.flyflix.auth.entity.Admin;
+import fly.be.flyflix.auth.entity.Aluno;
 import fly.be.flyflix.auth.entity.Usuario;
+import fly.be.flyflix.auth.entity.PasswordResetToken;
+import fly.be.flyflix.auth.repository.AdminRepository;
+import fly.be.flyflix.auth.repository.AlunoRepository;
 import fly.be.flyflix.auth.repository.PasswordResetTokenRepository;
 import fly.be.flyflix.auth.repository.UsuarioRepository;
 import fly.be.flyflix.auth.service.EmailService;
 import fly.be.flyflix.auth.service.PasswordResetService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
 public class PasswordResetServiceImpl implements PasswordResetService {
 
-    @Value("${base.url}")
-    private String baseUrl;
+    @Autowired
+    private UsuarioRepository usuarioRepository;
 
     @Autowired
-    UsuarioRepository usuarioRepository;
+    private AlunoRepository alunoRepository;
 
     @Autowired
-    private PasswordResetTokenRepository passwordResetTokenRepository;
+    private AdminRepository adminRepository;
 
     @Autowired
-    private PasswordEncoder passwordEncoder;
+    private PasswordResetTokenRepository tokenRepository;
 
     @Autowired
     private EmailService emailService;
 
-    // solicitar reset de senha gerara token valido por 1 hora
     @Override
-    public ResponseEntity<Map<String, Object>> solicitarResetSenha(SolicitarResetSenha dto) {
+    public ResponseEntity<Map<String, Object>> solicitarResetSenha(RequisicaoResetSenhaDTO dto) {
+        Optional<Usuario> usuarioOpt = usuarioRepository.findByEmail(dto.email());
 
-        var usuarioEmailDB = usuarioRepository.findByLogin(dto.email());
-
-        if (usuarioEmailDB.isEmpty()) {
-            Map<String, Object> response = new HashMap<>();
-            response.put("message", "Usuario nao encontrado");
-
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        if (usuarioOpt.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Email não encontrado"));
         }
 
-        //gerar Token para reset
-        String token = UUID.randomUUID().toString();
-        LocalDateTime expirationDate = LocalDateTime.now().plusHours(1);
+        Usuario usuario = usuarioOpt.get();
 
+        // Gerar token
+        String token = UUID.randomUUID().toString();
         PasswordResetToken resetToken = new PasswordResetToken();
         resetToken.setToken(token);
-        resetToken.setUsuario(usuarioEmailDB.get());
-        resetToken.setExpirationDate(expirationDate);
+        resetToken.setUsuario(usuario);
+        resetToken.setExpirationDate(LocalDateTime.now().plusHours(2));
+        tokenRepository.save(resetToken);
 
-        passwordResetTokenRepository.save(resetToken);
+        // Enviar e-mail com link
+        String link = "http://localhost:3000/redefinir-senha?token=" + token; // ajuste o link real
+        emailService.enviarEmail(
+                usuario.getEmail(),
+                "Redefinição de senha",
+                "Olá, clique no link abaixo para redefinir sua senha:\n" + link
+        );
 
-        String link = baseUrl + "/resetar-senha?token=" + token;
-        String conteudo = "<div style='text-align: center;'>"
-                + "<h2><strong>Flyflix Education - Password Reset</strong></h2>"
-                + "<p>Redefina sua senha <a href='" + link + "'>Clique aqui</a></p>"
-                + "</div>";
-        //HABLITAR SÓ EM DEPLOY sendEmail
-        //emailService.sendEmail(dto.email(), "Redefinir senha", conteudo);
-
-        Map<String, Object> response = new HashMap<>();
-        response.put("message", "Verifique seu email para redefinir sua senha");
-
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return ResponseEntity.ok(Map.of("message", "E-mail de redefinição enviado com sucesso"));
     }
 
     @Override
-    public ResponseEntity<Map<String, Object>> resetarSenha(ResetarSenha dados) {
+    public ResponseEntity<Map<String, Object>> redefinirSenha(RedefinicaoSenhaDTO dto) {
+        Optional<PasswordResetToken> tokenOpt = tokenRepository.findByToken(dto.token());
 
-        var usuariotoken = passwordResetTokenRepository.findByToken(dados.token());
-
-        //validar se existem algum token para reset da senha
-        if (usuariotoken.isEmpty()) {
-            Map<String, Object> response = new HashMap<>();
-            response.put("message", "token invalido");
-
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        if (tokenOpt.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Token inválido"));
         }
 
-        //validar se o token é valido
-        if(usuariotoken.get().getExpirationDate().isBefore(LocalDateTime.now())){
-            Map<String, Object> response = new HashMap<>();
-            response.put("message", "token expirado");
+        PasswordResetToken token = tokenOpt.get();
 
-            return ResponseEntity.status(HttpStatus.GONE).body(response);
+        if (token.getExpirationDate().isBefore(LocalDateTime.now())) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Token expirado"));
         }
 
-        Usuario usuario = usuariotoken.get().getUsuario();
+        Usuario usuario = token.getUsuario();
+        usuario.setSenha(dto.novaSenha()); // idealmente aplicar hash
 
-        usuario.setSenha(passwordEncoder.encode(dados.novaSenha()));
+        // Salvar no repositório correto com base na subclasse
+        if (usuario instanceof Aluno aluno) {
+            alunoRepository.save(aluno);
+        } else if (usuario instanceof Admin admin) {
+            adminRepository.save(admin);
+        } else {
+            return ResponseEntity.badRequest().body(Map.of("error", "Tipo de usuário desconhecido"));
+        }
 
-        usuarioRepository.save(usuario);
+        tokenRepository.delete(token);
 
-        Map<String, Object> response = new HashMap<>();
-        response.put("message", "senha redefinida com sucesso");
-
-        return ResponseEntity.status(HttpStatus.OK).body(response);
-
+        return ResponseEntity.ok(Map.of("message", "Senha redefinida com sucesso"));
     }
 }

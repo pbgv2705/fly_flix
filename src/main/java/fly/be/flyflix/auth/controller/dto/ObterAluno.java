@@ -1,7 +1,7 @@
 package fly.be.flyflix.auth.controller.dto;
 
 import fly.be.flyflix.auth.entity.Aluno;
-import fly.be.flyflix.auth.entity.PerfilAluno;
+import fly.be.flyflix.auth.enums.PerfilAluno;
 
 import java.time.LocalDate;
 

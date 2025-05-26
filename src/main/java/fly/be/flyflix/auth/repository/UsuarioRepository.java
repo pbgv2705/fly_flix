@@ -9,8 +9,11 @@ import java.util.Optional;
 
 @Repository
 public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
-    @EntityGraph(attributePaths = "perfiles")
-    Optional<Usuario> findByLogin(String login);
 
-    Optional<Usuario> findByCpf(String cpf);
+    Optional<Usuario> findByEmail(String email);
+
+    Optional<Usuario> findByCpf(String cdf);
+    boolean existsByEmail(String email);
+
+    boolean existsByCpf(String cpf);
 }
