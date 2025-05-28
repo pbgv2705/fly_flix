@@ -1,18 +1,13 @@
 package fly.be.flyflix.conteudo.dto.aula;
 
+import fly.be.flyflix.conteudo.entity.Aula;
 import jakarta.validation.constraints.*;
 
 public record CadastroAula(
-        @NotBlank
         String titulo,
-
-        @NotNull
+        String tipo,
         Integer ordem,
-
-        @Min(0)
         Integer duracaoEstimada,
-
-        @NotNull
+        String linkConteudo,
         Long moduloId
 ) {}
-

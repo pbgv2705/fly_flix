@@ -1,6 +1,8 @@
 package fly.be.flyflix.auth.entity;
 
+import fly.be.flyflix.auth.enums.Role;
 import jakarta.persistence.Entity;
+import jakarta.persistence.PrePersist;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,12 +17,14 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class Admin extends Usuario {
 
-
     private Boolean ativo;
 
-    @Override
-    public String getRole() {
-        return "ADMIN";
+    // Remova getRole() - herdará de Usuario
+
+    // Se quiser garantir que role seja ADMIN, faça um método de inicialização:
+    @PrePersist
+    public void prePersist() {
+        setRole(Role.ADMIN);
     }
 }
 

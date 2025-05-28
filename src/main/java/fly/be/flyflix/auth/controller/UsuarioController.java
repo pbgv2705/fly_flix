@@ -22,15 +22,11 @@ public class UsuarioController {
         this.usuarioService = usuarioService;
     }
 
-
-
     // Resetar senha (reset manual ou primeiro login)
     @PostMapping("/resetar-senha")
     public ResponseEntity<?> resetarSenha(@RequestBody RequisicaoResetSenhaDTO dados) {
         return usuarioService.resetarSenha(dados.email());
     }
-
-
 
     // Requisição para solicitar link de redefinição de senha (esqueci minha senha)
     // Solicita envio de e-mail com link de redefinição

@@ -37,7 +37,7 @@ public class ModuloService {
 
     public Page<DetalhamentoModulo> listar(Pageable paginacao) {
         return repository.findAll(paginacao)
-                .map(modulo -> new DetalhamentoModulo(modulo)); // Usando o construtor que aceita um objeto Modulo
+                .map(m -> new DetalhamentoModulo(m.getId(), m.getTitulo(), m.getOrdem(), m.getCurso().getId()));
     }
 
 
@@ -57,6 +57,6 @@ public class ModuloService {
 
     public DetalhamentoModulo detalhar(Long id) {
         Modulo m = repository.findById(id).orElseThrow();
-        return new DetalhamentoModulo(m);
+        return new DetalhamentoModulo(m.getId(), m.getTitulo(), m.getOrdem(), m.getCurso().getId());
     }
 }

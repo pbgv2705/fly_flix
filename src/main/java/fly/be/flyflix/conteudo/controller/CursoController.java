@@ -37,7 +37,7 @@ public class CursoController {
         curso.setTitulo(dados.titulo());
         curso.setDescricao(dados.descricao());
         curso.setImagemCapa(dados.imagemCapa());
-        curso.setTags(dados.tags());
+
         curso.setAutorId(dados.autorId());
 
         try {
@@ -74,7 +74,6 @@ public class CursoController {
         curso.setTitulo(dados.titulo());
         curso.setDescricao(dados.descricao());
         curso.setImagemCapa(dados.imagemCapa());
-        curso.setTags(dados.tags());
         curso.setAutorId(dados.autorId());
 
         try {

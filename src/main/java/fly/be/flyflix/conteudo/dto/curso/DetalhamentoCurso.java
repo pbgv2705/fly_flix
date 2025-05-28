@@ -10,10 +10,7 @@ public record DetalhamentoCurso(
         String titulo,
         String descricao,
         String imagemCapa,
-        List<String> tags,
-        String nivel,
-        Long autorId,
-        List<DetalhamentoModulo> modulos // ✅ Inclusão dos módulos com aulas
+        Long autorId
 ) {
     public DetalhamentoCurso(Curso curso) {
         this(
@@ -21,12 +18,7 @@ public record DetalhamentoCurso(
                 curso.getTitulo(),
                 curso.getDescricao(),
                 curso.getImagemCapa(),
-                curso.getTags(),
-                String.valueOf(curso.getNivel()),
-                curso.getAutorId(),
-                curso.getModulos().stream()
-                        .map(DetalhamentoModulo::new)
-                        .toList()
+                curso.getAutorId()
         );
     }
 }

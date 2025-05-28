@@ -3,17 +3,23 @@ import fly.be.flyflix.auth.controller.dto.LoginRequest;
 import fly.be.flyflix.auth.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.Collection;
+import java.util.List;
+
+@Entity
 @Table(name = "usuarios")
-@Entity(name = "Usuario")
+@Inheritance(strategy = InheritanceType.JOINED)
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(of = "id")
-@Inheritance(strategy = InheritanceType.JOINED)
-public abstract class Usuario {
+public abstract class Usuario implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,19 +28,57 @@ public abstract class Usuario {
     @Column(unique = true, nullable = false)
     private String cpf;
 
-    @Column(nullable = true)
+    @Column(nullable = false) // nome não deve ser opcional para usuários
     private String nome;
 
     @Column(unique = true, nullable = false)
     private String email;
 
-    @Column(nullable = true)
+    @Column(nullable = false) // senha deve ser obrigatória
     private String senha;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role;
-    public abstract String getRole(); // <- agora as subclasses devem implementar
+
+
+        @Override
+        public Collection<? extends GrantedAuthority> getAuthorities() {
+            return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
+        }
+
+        @Override
+        public String getPassword() {
+            return senha;
+        }
+
+        @Override
+        public String getUsername() {
+            return email;
+        }
+
+        @Override
+        public boolean isAccountNonExpired() {
+            return true;
+        }
+
+        @Override
+        public boolean isAccountNonLocked() {
+            return true;
+        }
+
+        @Override
+        public boolean isCredentialsNonExpired() {
+            return true;
+        }
+
+        @Override
+        public boolean isEnabled() {
+            return true;
+        }
+
+
+    //public abstract String getRole();
 
     public boolean isLoginCorrect(LoginRequest loginRequest, PasswordEncoder passwordEncoder) {
         return passwordEncoder.matches(loginRequest.senha(), this.senha);

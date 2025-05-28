@@ -7,21 +7,12 @@ import lombok.NoArgsConstructor;
 public record DadosDetalhamentoAula(
         Long id,
         String titulo,
-        Aula.TipoConteudo tipo,
+        String tipo,
         Integer ordem,
         Integer duracaoEstimada,
-        Long moduloId
-) {
-    public static DadosDetalhamentoAula from(Aula aula) {
-        return new DadosDetalhamentoAula(
-                aula.getId(),
-                aula.getTitulo(),
-                aula.getTipo(),
-                aula.getOrdem(),
-                aula.getDuracaoEstimada(),
-                aula.getModulo().getId()
-        );
-    }
-}
+        String linkConteudo,
+        Long moduloId,
+        String urlCapa
+) {}
 
 

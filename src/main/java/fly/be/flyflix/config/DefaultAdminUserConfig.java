@@ -13,13 +13,10 @@ import java.time.LocalDate;
 
 @Configuration
 public class DefaultAdminUserConfig implements CommandLineRunner {
-
     @Autowired
     private AdminRepository adminRepository;
-
     @Autowired
     private PasswordEncoder passwordEncoder;
-
     @Override
     @Transactional
     public void run(String... args) throws Exception {
@@ -27,7 +24,12 @@ public class DefaultAdminUserConfig implements CommandLineRunner {
         final String adminEmail = "admin@admin.com";
         final String adminCpf = "68669859432";
 
+        System.out.println("Buscando admin no banco...");
         var adminOptional = adminRepository.findByEmail(adminEmail);
+        //var adminOptional = adminRepository.findByEmail("admin@admin.com");
+        System.out.println("Resultado: " + adminOptional);
+
+
 
         adminOptional.ifPresentOrElse(
                 admin -> System.out.println("Admin já existe no banco"),
@@ -39,12 +41,8 @@ public class DefaultAdminUserConfig implements CommandLineRunner {
                     admin.setSenha(passwordEncoder.encode("FlyAdmin")); // senha padrão
                     admin.setAtivo(true);
                     admin.setRole(Role.ADMIN);
-
                     //admin.setDataNascimento(LocalDate.of(2022, 1, 17));
-
                     adminRepository.save(admin);
-
-
                     System.out.println("Admin padrão criado com sucesso");
                 }
         );
