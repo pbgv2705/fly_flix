@@ -60,8 +60,18 @@ public class AlunoService {
         usuarioRepository.save(aluno);
 
         String assunto = "Sua senha temporária para FlyFlix";
-        String corpo = STR."Olá \{dados.nome()},\n\nSua conta foi criada com sucesso. Sua senha temporária é:\n\n\{senhaTemp}\n\nPor favor, altere sua senha após o primeiro login.\n\nAtenciosamente,\nEquipe FlyFlix";
+        String corpo = String.format(
+                "Olá %s,\n\n" +
+                        "Sua conta foi criada com sucesso. Sua senha temporária é:\n\n" +
+                        "%s\n\n" +
+                        "Por favor, altere sua senha após o primeiro login.\n\n" +
+                        "Atenciosamente,\nEquipe FlyFlix",
+                dados.nome(),
+                senhaTemp
+        );
+
         emailService.enviarEmail(dados.email(), assunto, corpo);
+
 
         response.put("message", "Aluno cadastrado com sucesso. Senha enviada por email.");
         return ResponseEntity.ok(response);

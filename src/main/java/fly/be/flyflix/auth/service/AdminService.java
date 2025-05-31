@@ -51,11 +51,22 @@ public class AdminService {
 
         adminRepository.save(admin);
 
+        String corpo = String.format(
+                "Olá %s,\n\n" +
+                        "Sua conta foi criada com sucesso!\n" +
+                        "Senha temporária: %s\n\n" +
+                        "Por favor, altere sua senha após o primeiro login.\n\n" +
+                        "Equipe FlyFlix",
+                admin.getNome(),
+                senhaTemp
+        );
+
         emailService.enviarEmail(
                 admin.getEmail(),
                 "Cadastro de Administrador FlyFlix",
-                STR."Olá \{admin.getNome()},\n\nSua conta foi criada com sucesso!\nSenha temporária: \{senhaTemp}\n\nPor favor, altere sua senha após o primeiro login.\n\nEquipe FlyFlix"
+                corpo
         );
+
 
         return ResponseEntity.ok(Map.of("message", "Administrador cadastrado com sucesso"));
     }
