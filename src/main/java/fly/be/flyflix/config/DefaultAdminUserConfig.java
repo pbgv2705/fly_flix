@@ -21,7 +21,7 @@ public class DefaultAdminUserConfig implements CommandLineRunner {
     @Transactional
     public void run(String... args) throws Exception {
 
-        final String adminEmail = "admin@admin.com";
+        final String adminEmail = "dev_educ@flyeducacao.org";
         final String adminCpf = "68669859432";
 
         System.out.println("Buscando admin no banco...");

@@ -91,7 +91,6 @@ public class CursoController {
         if (!repository.existsById(id)) {
             return ResponseEntity.notFound().build();
         }
-
         repository.deleteById(id);
         return ResponseEntity.noContent().build();
     }
