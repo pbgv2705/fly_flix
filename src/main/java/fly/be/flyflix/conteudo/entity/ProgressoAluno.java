@@ -26,7 +26,7 @@ public class ProgressoAluno {
         this.assistida = assistida;
     }
 
-    public ProgressoAluno(Long alunoIdd, Long aulaId, boolean b) {
+    public ProgressoAluno(Long alunoId, Long aulaId, boolean b) {
     }
 
     public Long getId() {
