@@ -1,5 +1,6 @@
 package fly.be.flyflix.auth.controller.dto;
 
+import fly.be.flyflix.auth.enums.PerfilAluno;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -14,7 +15,7 @@ public record CadastroAluno(
 
         @NotBlank(message = "Email é obrigatório")
         @Email(message = "O email deve ser válido")
-        String email,  // login será email
+        String email,
 
         @NotBlank(message = "CPF é obrigatório")
         @CPF(message = "CPF inválido")
@@ -22,5 +23,7 @@ public record CadastroAluno(
 
         @NotNull(message = "Data de nascimento é obrigatória")
         @Past(message = "Data de nascimento inválida")
-        LocalDate dataNascimento
+        LocalDate dataNascimento,
+
+        PerfilAluno perfilAluno // Campo opcional, sem validação obrigatória
 ) {}

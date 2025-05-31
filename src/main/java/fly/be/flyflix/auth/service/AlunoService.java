@@ -3,6 +3,7 @@ package fly.be.flyflix.auth.service;
 import fly.be.flyflix.auth.controller.dto.CadastroAluno;
 import fly.be.flyflix.auth.controller.dto.aluno.AtualizarAlunoRequest;
 import fly.be.flyflix.auth.entity.Aluno;
+import fly.be.flyflix.auth.enums.PerfilAluno;
 import fly.be.flyflix.auth.repository.AlunoRepository;
 import fly.be.flyflix.auth.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +50,9 @@ public class AlunoService {
         aluno.setEmail(dados.email());
         aluno.setDataNascimento(dados.dataNascimento());
         aluno.setAtivo(true);
+        // Define perfil padrão caso não venha do DTO
+        aluno.setPerfilAluno(dados.perfilAluno() != null ? dados.perfilAluno() : PerfilAluno.MULHERES_IN_TECH);
+
 
         String senhaTemp = UUID.randomUUID().toString().substring(0, 8);
         aluno.setSenha(passwordEncoder.encode(senhaTemp));
@@ -74,7 +78,7 @@ public class AlunoService {
                     return ResponseEntity.ok(Map.<String, Object>of("message", "Aluno atualizado com sucesso"));
                 })
                 .orElseGet(() -> ResponseEntity.badRequest().body(
-                        Map.<String, Object>of("error", "Aluno não encontrado")
+                        Map.of("error", "Aluno não encontrado")
                 ));
     }
 
@@ -88,7 +92,7 @@ public class AlunoService {
                     return ResponseEntity.ok(Map.<String, Object>of("message", "Aluno removido com sucesso"));
                 })
                 .orElseGet(() -> ResponseEntity.badRequest().body(
-                        Map.<String, Object>of("error", "Aluno não encontrado")
+                        Map.of("error", "Aluno não encontrado")
                 ));
     }
 
@@ -99,7 +103,7 @@ public class AlunoService {
         return alunoRepository.findById(id)
                 .map(aluno -> ResponseEntity.ok(Map.<String, Object>of("aluno", aluno)))
                 .orElseGet(() -> ResponseEntity.badRequest().body(
-                        Map.<String, Object>of("error", "Aluno não encontrado")
+                        Map.of("error", "Aluno não encontrado")
                 ));
     }
 

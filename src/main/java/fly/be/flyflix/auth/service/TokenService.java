@@ -6,7 +6,6 @@ import fly.be.flyflix.auth.entity.Aluno;
 
 public interface TokenService {
     LoginResponse login(LoginRequest loginRequest);
-
     String gerarTokenRedefinicaoSenha(Aluno aluno);
     Aluno validarTokenRedefinicaoSenha(String token);
     void invalidarToken(String token);

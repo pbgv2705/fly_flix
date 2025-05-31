@@ -5,6 +5,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 
 import java.time.Duration;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import fly.be.flyflix.auth.controller.dto.LoginRequest;
@@ -53,7 +54,6 @@ public class TokenServiceImpl implements TokenService {
         this.authenticationManager = authenticationManager; // <-- atribuição
     }
 
-
     @Override
     public LoginResponse login(LoginRequest loginRequest) {
         // Autenticação com Spring Security
@@ -73,14 +73,12 @@ public class TokenServiceImpl implements TokenService {
                 .subject(usuario.getId().toString())
                 .issuedAt(now)
                 .expiresAt(now.plusSeconds(expiresIn))
-                .claim("scope", "SCOPE_" + usuario.getRole());
-
+                .claim("authorities", List.of("ROLE_" + usuario.getRole()));
+        //.claim("scope", "SCOPE_" + usuario.getRole());
         if (usuario instanceof Aluno aluno) {
             claimsBuilder.claim("allowedCategories", aluno.getPerfilAluno());
         }
-
         String jwt = jwtEncoder.encode(JwtEncoderParameters.from(claimsBuilder.build())).getTokenValue();
-
         return new LoginResponse(jwt, expiresIn);
     }
 
@@ -93,7 +91,6 @@ public class TokenServiceImpl implements TokenService {
     public String gerarTokenRedefinicaoSenha(Aluno aluno) {
         Instant now = Instant.now();
         long expiresIn = Duration.ofHours(1).getSeconds(); // 1 hora
-
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuer("flyflix-password-reset")
                 .subject(aluno.getId().toString())
@@ -125,6 +122,5 @@ public class TokenServiceImpl implements TokenService {
             throw new RuntimeException("Token inválido ou expirado");
         }
     }
-
 
 }
