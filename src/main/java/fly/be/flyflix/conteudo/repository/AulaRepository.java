@@ -10,8 +10,6 @@ import java.util.List;
 
 @Repository
 public interface AulaRepository extends JpaRepository<Aula, Long> {
-
     List<Aula> findByModuloId(Long moduloId);
-    @Query("SELECT a FROM Aula a WHERE a.modulo.curso.id = :cursoId")
-    List<Aula> findByCursoId(@Param("cursoId") Long cursoId);
 }
+

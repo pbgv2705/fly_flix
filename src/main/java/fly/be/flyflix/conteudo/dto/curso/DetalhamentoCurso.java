@@ -10,7 +10,7 @@ public record DetalhamentoCurso(
         String titulo,
         String descricao,
         String imagemCapa,
-        Long autorId
+        List<DetalhamentoModulo> modulos
 ) {
     public DetalhamentoCurso(Curso curso) {
         this(
@@ -18,7 +18,10 @@ public record DetalhamentoCurso(
                 curso.getTitulo(),
                 curso.getDescricao(),
                 curso.getImagemCapa(),
-                curso.getAutorId()
+                curso.getModulos().stream()
+                        .map(DetalhamentoModulo::new)
+                        .toList()
         );
     }
 }
+

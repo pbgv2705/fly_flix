@@ -11,8 +11,22 @@ public record DadosDetalhamentoAula(
         Integer ordem,
         Integer duracaoEstimada,
         String linkConteudo,
-        Long moduloId,
-        String urlCapa
-) {}
+        Long moduloId,        // Agora pode ser null
+        String urlCapa        // Pode ser URL pública ou baseada em base64, conforme o uso
+) {
+    public DadosDetalhamentoAula(Aula aula) {
+        this(
+                aula.getId(),
+                aula.getTitulo(),
+                aula.getTipo(),
+                aula.getOrdem(),
+                aula.getDuracaoEstimada(),
+                aula.getLinkConteudo(),
+                aula.getModulo() != null ? aula.getModulo().getId() : null,
+                aula.getCapa() != null ? "data:image/png;base64," + java.util.Base64.getEncoder().encodeToString(aula.getCapa()) : null
+        );
+    }
+}
+
 
 

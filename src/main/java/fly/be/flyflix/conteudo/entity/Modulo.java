@@ -1,3 +1,4 @@
+
 package fly.be.flyflix.conteudo.entity;
 
 import jakarta.persistence.*;
@@ -34,11 +35,15 @@ public class Modulo {
     @Column(nullable = false)
     private Integer ordem;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "curso_id", nullable = false)
-    private Curso curso;
+    // Relacionamento muitos-para-muitos com Curso
+    // É importante que o lado "dono" do relacionamento tenha o @JoinTable definido,
+    // e aqui usamos mappedBy para indicar que o dono está na entidade Curso
+    @Builder.Default
+    @ManyToMany(mappedBy = "modulos", fetch = FetchType.LAZY)
+    private List<Curso> cursos = new ArrayList<>();
 
-    @OneToMany(mappedBy = "modulo", cascade = CascadeType.ALL, orphanRemoval = true)
+    // Relacionamento um-para-muitos com Aula
+    @OneToMany(mappedBy = "modulo", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @OrderBy("ordem ASC")
     @Builder.Default
     private List<Aula> aulas = new ArrayList<>();
@@ -53,3 +58,5 @@ public class Modulo {
         aula.setModulo(null);
     }
 }
+
+

@@ -1,22 +1,29 @@
 package fly.be.flyflix.conteudo.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import lombok.*;
+
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@ToString(onlyExplicitlyIncluded = true)
 @Table(name = "aulas")
 public class Aula {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Long id;
 
+    @NotNull
+    @Size(min = 3, max = 255)
+    @Column(nullable = false)
     private String titulo;
 
     private String tipo; // vídeo, texto, artigo, quiz
@@ -32,7 +39,6 @@ public class Aula {
     private byte[] capa;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "modulo_id")
+    @JoinColumn(name = "modulo_id", nullable = true) // Permitir nulo para aulas desvinculadas
     private Modulo modulo;
 }
-

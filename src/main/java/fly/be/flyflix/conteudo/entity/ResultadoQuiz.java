@@ -13,7 +13,6 @@ public class ResultadoQuiz {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private Long alunoId;
     private Long cursoId;
     private double nota;

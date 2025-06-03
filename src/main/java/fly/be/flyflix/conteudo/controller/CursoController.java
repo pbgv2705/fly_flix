@@ -7,12 +7,14 @@ import fly.be.flyflix.conteudo.dto.curso.DetalhamentoCurso;
 import fly.be.flyflix.conteudo.entity.Curso;
 import fly.be.flyflix.conteudo.repository.CursoRepository;
 import fly.be.flyflix.conteudo.service.CursoService;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,24 +35,18 @@ public class CursoController {
     @PostMapping
     @Transactional
     public ResponseEntity<DetalhamentoCurso> cadastrar(@RequestBody @Valid CadastroCurso dados) {
-        Curso curso = new Curso();
-        curso.setTitulo(dados.titulo());
-        curso.setDescricao(dados.descricao());
-        curso.setImagemCapa(dados.imagemCapa());
-
-        curso.setAutorId(dados.autorId());
-
         try {
-            curso.setNivel(Curso.NivelCurso.valueOf(dados.nivel().toUpperCase()));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
+            Curso curso = cursoService.cadastrarCurso(dados);
+            return ResponseEntity
+                    .created(URI.create("/api/cursos/" + curso.getId()))
+                    .body(new DetalhamentoCurso(curso));
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.badRequest().body(null); // ou .build() se preferir sem corpo
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
-
-        repository.save(curso);
-
-        return ResponseEntity.created(URI.create("/api/cursos/" + curso.getId()))
-                .body(new DetalhamentoCurso(curso));
     }
+
 
     @GetMapping
     public Page<DetalhamentoCurso> listar(@PageableDefault(size = 10, sort = "titulo") Pageable paginacao) {
@@ -74,10 +70,10 @@ public class CursoController {
         curso.setTitulo(dados.titulo());
         curso.setDescricao(dados.descricao());
         curso.setImagemCapa(dados.imagemCapa());
-        curso.setAutorId(dados.autorId());
+
 
         try {
-            curso.setNivel(Curso.NivelCurso.valueOf(dados.nivel().toUpperCase()));
+
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
         }

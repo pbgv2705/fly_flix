@@ -32,25 +32,26 @@ public class AulaController {
 
     @PostMapping
     @Transactional
-    public ResponseEntity<?> cadastrar(@RequestBody @Valid CadastroAula dados) {
+    public ResponseEntity<Void> cadastrar(@RequestBody @Valid CadastroAula dados) {
         var modulo = moduloRepository.findById(dados.moduloId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Módulo não encontrado"));
 
-        Aula aula = new Aula();
-        aula.setTitulo(dados.titulo());
-        aula.setTipo(dados.tipo());
-        aula.setOrdem(dados.ordem());
-        aula.setDuracaoEstimada(dados.duracaoEstimada());
-        aula.setLinkConteudo(dados.linkConteudo());
-        aula.setModulo(modulo);
+        var aula = Aula.builder()
+                .titulo(dados.titulo())
+                .tipo(dados.tipo())
+                .ordem(dados.ordem())
+                .duracaoEstimada(dados.duracaoEstimada())
+                .linkConteudo(dados.linkConteudo())
+                .modulo(modulo)
+                .build();
 
         aulaRepository.save(aula);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @GetMapping
-    public List<DadosDetalhamentoAula> listar() {
-        return aulaRepository.findAll().stream().map(aula ->
+    public ResponseEntity<List<DadosDetalhamentoAula>> listar() {
+        var aulas = aulaRepository.findAll().stream().map(aula ->
                 new DadosDetalhamentoAula(
                         aula.getId(),
                         aula.getTitulo(),
@@ -58,25 +59,28 @@ public class AulaController {
                         aula.getOrdem(),
                         aula.getDuracaoEstimada(),
                         aula.getLinkConteudo(),
-                        aula.getModulo().getId(),
+                        aula.getModulo() != null ? aula.getModulo().getId() : null,
                         "/api/aulas/" + aula.getId() + "/capa"
+                )
+        ).toList();
 
-                )).toList();
+        return ResponseEntity.ok(aulas);
     }
 
     @Operation(summary = "Upload da capa da aula")
     @ApiResponse(responseCode = "200", description = "Imagem salva com sucesso.")
     @PostMapping(value = "/{id}/capa", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Transactional
-    public ResponseEntity<?> uploadCapa(
+    public ResponseEntity<String> uploadCapa(
             @PathVariable Long id,
             @Parameter(description = "Imagem da capa", required = true)
             @RequestParam("imagem") MultipartFile imagem) throws Exception {
+
         var aula = aulaRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Aula não encontrada"));
 
-        String contentType = imagem.getContentType();
-        if (contentType == null || !(contentType.equals("image/jpeg") || contentType.equals("image/png"))) {
+        var tipo = imagem.getContentType();
+        if (tipo == null || !(tipo.equals("image/jpeg") || tipo.equals("image/png"))) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Tipo de imagem inválido (JPEG ou PNG)");
         }
 
@@ -90,19 +94,18 @@ public class AulaController {
         var aula = aulaRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Aula não encontrada"));
 
-        var imagem = aula.getCapa();
-        if (imagem == null) {
+        if (aula.getCapa() == null) {
             return ResponseEntity.notFound().build();
         }
 
         return ResponseEntity.ok()
-                .header("Content-Type", "image/jpeg") // ou PNG, se quiser dinamizar, salve o tipo no banco
-                .body(imagem);
+                .header("Content-Type", "image/jpeg") // opcional: salvar tipo MIME no banco para maior controle
+                .body(aula.getCapa());
     }
 
     @PutMapping
     @Transactional
-    public ResponseEntity<?> atualizar(@RequestBody @Valid DadosAtualizacaoAula dados) {
+    public ResponseEntity<Void> atualizar(@RequestBody @Valid DadosAtualizacaoAula dados) {
         var aula = aulaRepository.findById(dados.id())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Aula não encontrada"));
 
@@ -121,7 +124,10 @@ public class AulaController {
 
     @DeleteMapping("/{id}")
     @Transactional
-    public ResponseEntity<?> remover(@PathVariable Long id) {
+    public ResponseEntity<Void> remover(@PathVariable Long id) {
+        if (!aulaRepository.existsById(id)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Aula não encontrada");
+        }
         aulaRepository.deleteById(id);
         return ResponseEntity.noContent().build();
     }
@@ -138,9 +144,10 @@ public class AulaController {
                 aula.getOrdem(),
                 aula.getDuracaoEstimada(),
                 aula.getLinkConteudo(),
-                aula.getModulo().getId(),
+                aula.getModulo() != null ? aula.getModulo().getId() : null,
                 "/api/aulas/" + aula.getId() + "/capa"
         );
         return ResponseEntity.ok(dto);
     }
 }
+

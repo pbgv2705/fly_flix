@@ -1,7 +1,8 @@
 package fly.be.flyflix.conteudo.service;
 
 import fly.be.flyflix.auth.repository.AlunoRepository;
-import fly.be.flyflix.conteudo.entity.Aula;
+import fly.be.flyflix.conteudo.entity.Curso;
+import fly.be.flyflix.conteudo.entity.Modulo;
 import fly.be.flyflix.conteudo.entity.ProgressoAluno;
 import fly.be.flyflix.conteudo.entity.ResultadoQuiz;
 import fly.be.flyflix.conteudo.repository.AulaRepository;
@@ -45,8 +46,11 @@ public class CertificadoService {
     }
 
     public boolean podeEmitirCertificado(Long alunoId, Long cursoId) {
-        // Buscar todas as aulas do curso
-        List<Aula> aulasDoCurso = aulaRepository.findByCursoId(cursoId);
+        // Buscar curso e seus módulos
+        Curso curso = cursoRepository.findById(cursoId)
+                .orElseThrow(() -> new EntityNotFoundException("Curso não encontrado"));
+
+        List<Modulo> modulosDoCurso = curso.getModulos();
 
         // Buscar progresso do aluno no curso
         List<ProgressoAluno> progresso = progressoRepository.findByAlunoIdAndCursoId(alunoId, cursoId);
@@ -57,8 +61,9 @@ public class CertificadoService {
                 .map(ProgressoAluno::getAulaId)
                 .collect(Collectors.toSet());
 
-        // Verificar se todas as aulas foram assistidas
-        boolean todasAssistidas = aulasDoCurso.stream()
+        // Verificar se todas as aulas dos módulos foram assistidas
+        boolean todasAssistidas = modulosDoCurso.stream()
+                .flatMap(modulo -> modulo.getAulas().stream())
                 .allMatch(aula -> aulasAssistidas.contains(aula.getId()));
 
         // Verificar se o aluno tem nota >= 7 no quiz
@@ -83,29 +88,28 @@ public class CertificadoService {
                 .orElseThrow(() -> new EntityNotFoundException("Curso não encontrado"));
     }
 
+    public byte[] gerarCertificado(Long alunoId, Long cursoId) {
+        Objects.requireNonNull(alunoId, "ID do aluno não pode ser nulo");
+        Objects.requireNonNull(cursoId, "ID do curso não pode ser nulo");
 
+        // MODO SIMULADO: se alunoId e cursoId forem 999, retorna certificado fake
+        if (alunoId == 999L && cursoId == 999L) {
+            return pdfGenerator.gerar(
+                    "Aluno Simulado",
+                    "Curso Simulado de Spring Boot",
+                    LocalDate.now()
+            );
+        }
 
-public byte[] gerarCertificado(Long alunoId, Long cursoId) {
-    Objects.requireNonNull(alunoId, "ID do aluno não pode ser nulo");
-    Objects.requireNonNull(cursoId, "ID do curso não pode ser nulo");
+        // Verificação real de requisitos
+        if (!podeEmitirCertificado(alunoId, cursoId)) {
+            throw new IllegalStateException("Aluno não qualificado para certificado");
+        }
 
-    // MODO SIMULADO: se alunoId e cursoId forem 999, retorna certificado fake
-    if (alunoId == 999L && cursoId == 999L) {
         return pdfGenerator.gerar(
-                "Aluno Simulado",
-                "Curso Simulado de Spring Boot",
+                buscarNomeAluno(alunoId),
+                buscarTituloCurso(cursoId),
                 LocalDate.now()
         );
     }
-    // Verificação real de requisitos
-    if (!podeEmitirCertificado(alunoId, cursoId)) {
-        throw new IllegalStateException("Aluno não qualificado para certificado");
-    }
-
-    return pdfGenerator.gerar(
-            buscarNomeAluno(alunoId),
-            buscarTituloCurso(cursoId),
-            LocalDate.now()
-    );
-}
 }

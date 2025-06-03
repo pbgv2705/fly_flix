@@ -22,23 +22,16 @@ public class ModuloService {
     @Autowired
     private CursoRepository cursoRepository;
 
+
     @Transactional
     public Modulo cadastrar(CadastroModulo dados) {
-        Curso curso = cursoRepository.findById(dados.cursoId())
-                .orElseThrow(() -> new EntityNotFoundException("Curso não encontrado"));
         Modulo modulo = new Modulo();
         modulo.setTitulo(dados.titulo());
         modulo.setOrdem(dados.ordem());
-        modulo.setCurso(curso);
+
         return repository.save(modulo);
     }
 
-
-
-    public Page<DetalhamentoModulo> listar(Pageable paginacao) {
-        return repository.findAll(paginacao)
-                .map(m -> new DetalhamentoModulo(m.getId(), m.getTitulo(), m.getOrdem(), m.getCurso().getId()));
-    }
 
 
 
@@ -55,8 +48,15 @@ public class ModuloService {
         repository.deleteById(id);
     }
 
+
+    public Page<DetalhamentoModulo> listar(Pageable paginacao) {
+        return repository.findAll(paginacao)
+                .map(DetalhamentoModulo::new);
+    }
+
     public DetalhamentoModulo detalhar(Long id) {
         Modulo m = repository.findById(id).orElseThrow();
-        return new DetalhamentoModulo(m.getId(), m.getTitulo(), m.getOrdem(), m.getCurso().getId());
+        return new DetalhamentoModulo(m);
     }
+
 }

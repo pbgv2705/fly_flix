@@ -6,6 +6,7 @@ import fly.be.flyflix.auth.entity.Aluno;
 import fly.be.flyflix.auth.repository.AlunoRepository;
 import fly.be.flyflix.auth.service.EmailService;
 import fly.be.flyflix.auth.service.TokenService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -69,7 +70,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<?> login(@RequestBody @Valid LoginRequest loginRequest) {
         try {
             LoginResponse response = tokenService.login(loginRequest);
             return ResponseEntity.ok(response);
