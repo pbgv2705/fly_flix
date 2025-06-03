@@ -1,7 +1,10 @@
 package fly.be.flyflix.conteudo.entity;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
 @Entity
 public class ProgressoAluno {
 
@@ -9,15 +12,17 @@ public class ProgressoAluno {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Setter
     private Long alunoId;
 
+    @Setter
     private Long aulaId;
 
+    @Setter
     private boolean assistida;
 
+    @Setter
     private Long cursoId;
-
-    public ProgressoAluno() {}
 
     public ProgressoAluno(Long alunoId, Long aulaId, Long cursoId, boolean assistida) {
         this.alunoId = alunoId;
@@ -26,43 +31,5 @@ public class ProgressoAluno {
         this.assistida = assistida;
     }
 
-    public ProgressoAluno(Long alunoId, Long aulaId, boolean b) {
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public Long getAlunoId() {
-        return alunoId;
-    }
-
-    public void setAlunoId(Long alunoId) {
-        this.alunoId = alunoId;
-    }
-
-    public Long getAulaId() {
-        return aulaId;
-    }
-
-    public void setAulaId(Long aulaId) {
-        this.aulaId = aulaId;
-    }
-
-    public boolean isAssistida() {
-        return assistida;
-    }
-
-    public void setAssistida(boolean assistida) {
-        this.assistida = assistida;
-    }
-
-    public Long getCursoId() {
-        return cursoId;
-    }
-
-    public void setCursoId(Long cursoId) {
-        this.cursoId = cursoId;
-    }
 }
 

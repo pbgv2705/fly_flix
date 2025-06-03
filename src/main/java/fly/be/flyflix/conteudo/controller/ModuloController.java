@@ -2,8 +2,14 @@ package fly.be.flyflix.conteudo.controller;
 import fly.be.flyflix.conteudo.dto.modulo.AtualizacaoModulo;
 import fly.be.flyflix.conteudo.dto.modulo.CadastroModulo;
 import fly.be.flyflix.conteudo.dto.modulo.DetalhamentoModulo;
+import fly.be.flyflix.conteudo.entity.Curso;
+import fly.be.flyflix.conteudo.entity.CursoModulo;
 import fly.be.flyflix.conteudo.entity.Modulo;
+import fly.be.flyflix.conteudo.repository.CursoModuloRepository;
+import fly.be.flyflix.conteudo.repository.CursoRepository;
+import fly.be.flyflix.conteudo.repository.ModuloRepository;
 import fly.be.flyflix.conteudo.service.ModuloService;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -13,19 +19,34 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
+
 @RestController
 @RequestMapping("/api/modulos")
 public class ModuloController {
 
     @Autowired
     private ModuloService service;
+    @Autowired
+    private CursoRepository cursoRepository;
+    @Autowired
+    private CursoModuloRepository cursoModuloRepository;
+    @Autowired
+    private ModuloRepository moduloRepository;
 
     @PostMapping
     @Transactional
-    public ResponseEntity<Modulo> cadastrar(@RequestBody @Valid CadastroModulo dados) {
-        var modulo = service.cadastrar(dados);
-        return ResponseEntity.ok(modulo);
+    public ResponseEntity<DetalhamentoModulo> cadastrar(@RequestBody @Valid CadastroModulo dados) {
+        Modulo modulo = new Modulo();
+        modulo.setTitulo(dados.titulo());
+        moduloRepository.save(modulo);
+        return ResponseEntity
+                .created(URI.create("/api/modulos/" + modulo.getId()))
+                .body(new DetalhamentoModulo(modulo.getId(), modulo.getTitulo(), null)); // ordem será definida no curso
     }
+
+
+
 
     @GetMapping
     public Page<DetalhamentoModulo> listar(@PageableDefault(size = 10) Pageable paginacao) {

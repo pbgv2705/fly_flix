@@ -30,7 +30,6 @@ public class Curso {
     @JoinColumn(name = "autor_id", nullable = false)
     private Usuario autor;
 
-
     @NotNull
     @Size(min = 3, max = 255)
     @Column(nullable = false)
@@ -43,25 +42,28 @@ public class Curso {
     private LocalDate dataPublicacao;
 
     private String imagemCapa;
-
-    @Builder.Default
-    @ManyToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+    @ManyToMany
     @JoinTable(
             name = "curso_modulo",
             joinColumns = @JoinColumn(name = "curso_id"),
             inverseJoinColumns = @JoinColumn(name = "modulo_id")
     )
-    private List<Modulo> modulos = new ArrayList<>();
+    private List<Modulo> modulos;
 
 
-    // Métodos de negócio
-    public void adicionarModulo(Modulo modulo) {
-        modulos.add(modulo);
-        modulo.getCursos().add(this);
+    @OneToMany(mappedBy = "curso", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<CursoModulo> cursoModulos = new ArrayList<>();
+
+    // Métodos de negócio usando CursoModulo
+    public void adicionarModulo(Modulo modulo, int ordem) {
+        CursoModulo cursoModulo = new CursoModulo(this, modulo, ordem);
+        cursoModulos.add(cursoModulo);
+        modulo.getCursoModulos().add(cursoModulo);
     }
 
     public void removerModulo(Modulo modulo) {
-        modulos.remove(modulo);
-        modulo.getCursos().remove(this);
+        cursoModulos.removeIf(cm -> cm.getModulo().equals(modulo));
+        modulo.getCursoModulos().removeIf(cm -> cm.getCurso().equals(this));
     }
 }

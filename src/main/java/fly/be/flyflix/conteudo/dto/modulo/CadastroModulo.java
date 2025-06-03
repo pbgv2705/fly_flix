@@ -5,6 +5,6 @@ import java.util.List;
 
 
 public record CadastroModulo(
-        String titulo,
-        Integer ordem
+        String titulo
+
 ) {}
