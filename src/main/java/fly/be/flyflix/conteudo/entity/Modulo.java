@@ -30,9 +30,6 @@ public class Modulo {
     @Column(nullable = false)
     private String titulo;
 
-    @Builder.Default
-    @ManyToMany(mappedBy = "modulos", fetch = FetchType.LAZY)
-    private List<Curso> cursos = new ArrayList<>();
 
     // Agora o relacionamento com curso é mediado por CursoModulo
     @OneToMany(mappedBy = "modulo", cascade = CascadeType.ALL, orphanRemoval = true)

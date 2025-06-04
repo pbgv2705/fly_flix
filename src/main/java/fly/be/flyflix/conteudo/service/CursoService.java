@@ -99,14 +99,14 @@ public class CursoService {
         Modulo modulo = moduloRepository.findById(moduloId)
                 .orElseThrow(() -> new IllegalArgumentException("Módulo não encontrado"));
 
-        // Verifica se o módulo já está associado ao curso para evitar duplicação
+        // Evita associação duplicada
         boolean jaAssociado = curso.getCursoModulos().stream()
                 .anyMatch(cm -> cm.getModulo().getId().equals(moduloId));
         if (jaAssociado) {
             throw new IllegalStateException("Módulo já está associado a este curso");
         }
 
-        // Define a ordem como o próximo valor disponível
+        // Define a próxima ordem disponível
         int novaOrdem = curso.getCursoModulos().stream()
                 .mapToInt(CursoModulo::getOrdem)
                 .max()
@@ -114,12 +114,14 @@ public class CursoService {
 
         CursoModulo cursoModulo = new CursoModulo(curso, modulo, novaOrdem);
 
+        // Relacionamento bidirecional
         curso.getCursoModulos().add(cursoModulo);
         modulo.getCursoModulos().add(cursoModulo);
 
+        // Só precisa salvar o lado "owner" da relação (CursoModulo)
         cursoModuloRepository.save(cursoModulo);
-        cursoRepository.save(curso);
 
         return curso;
     }
+
 }

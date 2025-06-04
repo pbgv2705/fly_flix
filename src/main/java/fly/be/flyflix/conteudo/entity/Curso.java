@@ -42,14 +42,6 @@ public class Curso {
     private LocalDate dataPublicacao;
 
     private String imagemCapa;
-    @ManyToMany
-    @JoinTable(
-            name = "curso_modulo",
-            joinColumns = @JoinColumn(name = "curso_id"),
-            inverseJoinColumns = @JoinColumn(name = "modulo_id")
-    )
-    private List<Modulo> modulos;
-
 
     @OneToMany(mappedBy = "curso", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default

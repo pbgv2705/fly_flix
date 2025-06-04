@@ -42,7 +42,7 @@ public class ModuloController {
         moduloRepository.save(modulo);
         return ResponseEntity
                 .created(URI.create("/api/modulos/" + modulo.getId()))
-                .body(new DetalhamentoModulo(modulo.getId(), modulo.getTitulo(), null)); // ordem será definida no curso
+                .body(new DetalhamentoModulo(modulo.getId(), modulo.getTitulo())); // ordem será definida no curso
     }
 
 
